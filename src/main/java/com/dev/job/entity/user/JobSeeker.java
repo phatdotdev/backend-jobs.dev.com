@@ -1,30 +1,10 @@
 package com.dev.job.entity.user;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.Table;
 
-import java.time.LocalDate;
+@Entity
+@Table(name = "job_seeker")
+public class JobSeeker extends User{
 
-@EqualsAndHashCode(callSuper = true)
-@Entity(name = "job_seekers")
-@AllArgsConstructor
-@NoArgsConstructor
-@Data
-public class JobSeeker extends User {
-    String firstname;
-    String lastname;
-
-    @Enumerated(EnumType.STRING)
-    @Column(length = 10)
-    UserGender gender;
-
-    LocalDate dob;
-    String hobbies;
-    String careerObject;
 }
