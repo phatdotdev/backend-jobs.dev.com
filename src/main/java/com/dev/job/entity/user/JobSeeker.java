@@ -1,6 +1,5 @@
 package com.dev.job.entity.user;
 
-import com.dev.job.enums.Gender;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -23,7 +22,7 @@ public class JobSeeker extends User {
 
     @Enumerated(EnumType.STRING)
     @Column(length = 10)
-    Gender gender;
+    UserGender gender;
 
     LocalDate dob;
     String hobbies;

@@ -17,7 +17,7 @@ import java.time.LocalDate;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(nullable = false, unique = true)
     String email;
@@ -25,11 +25,13 @@ public class User {
     @Column(nullable = false)
     String password;
 
-    @Column(length = 255)
-    String address;
-
+    @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    String status;
+    UserStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    UserRole role;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "picture_id")
