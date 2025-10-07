@@ -1,5 +1,7 @@
 server:
   port: 8080
+  servlet:
+    context-path: /api/v1
 spring:
   application:
     name: job
@@ -10,4 +12,5 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-
+jwt:
+  signer-key: "xn6j08mmk782qbf8iun443h92tloi83tci3mibe9yemiek4hgrqn50yp9k0idz1p"
