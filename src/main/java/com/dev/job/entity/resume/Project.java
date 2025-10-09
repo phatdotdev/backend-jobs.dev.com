@@ -1,31 +1,33 @@
 package com.dev.job.entity.resume;
 
+import com.dev.job.entity.resource.Link;
 import com.dev.job.entity.user.JobSeeker;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@Table(name = "experience")
+@Table(name = "skill")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class WorkExperience {
+public class Project {
     @Id
     UUID id;
-    @Column(name = "company_name")
-    String companyName;
-    String position;
-    @Column(name = "start_date")
-    LocalDate startDate;
-    @Column(name = "end_date")
-    LocalDate endDate;
+
+    String name;
     String description;
+
+    String role;
+    String result;
+
+    @OneToOne
+    @JoinColumn(name = "link_id")
+    Link link;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_seeker_id")

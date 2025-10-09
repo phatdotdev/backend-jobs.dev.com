@@ -1,7 +1,7 @@
 package com.dev.job.entity.resume;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.dev.job.entity.user.JobSeeker;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@Table(name = "experience")
+@Table(name = "certification")
 @Data
 @Builder
 @AllArgsConstructor
@@ -24,4 +24,8 @@ public class Certification {
     String credentialId;
     String credentialUrl;
     String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "job_seeker_id")
+    JobSeeker jobSeeker;
 }

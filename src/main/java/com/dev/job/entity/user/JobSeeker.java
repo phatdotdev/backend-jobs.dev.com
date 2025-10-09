@@ -1,6 +1,6 @@
 package com.dev.job.entity.user;
 
-import com.dev.job.entity.resume.Education;
+import com.dev.job.entity.resume.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -28,4 +28,24 @@ public class JobSeeker extends User{
     @OneToMany(mappedBy = "jobSeeker", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     List<Education> educations;
+
+    @OneToMany(mappedBy = "jobSeeker", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    List<WorkExperience> experiences;
+
+    @OneToMany(mappedBy = "jobSeeker", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    List<Certification> certifications;
+
+    @OneToMany(mappedBy = "jobSeeker", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    List<Skill> skills;
+
+    @OneToMany(mappedBy = "jobSeeker", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    List<Award> awards;
+
+    @OneToMany(mappedBy = "jobSeeker", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    List<Project> projects;
 }

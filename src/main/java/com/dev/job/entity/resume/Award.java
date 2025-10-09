@@ -1,5 +1,6 @@
 package com.dev.job.entity.resume;
 
+import com.dev.job.entity.resource.Link;
 import com.dev.job.entity.user.JobSeeker;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,23 +10,24 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@Table(name = "experience")
+@Table(name = "award")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class WorkExperience {
+public class Award {
     @Id
     UUID id;
-    @Column(name = "company_name")
-    String companyName;
-    String position;
-    @Column(name = "start_date")
-    LocalDate startDate;
-    @Column(name = "end_date")
-    LocalDate endDate;
+    String name;
+    String organization;
+    LocalDate receivedDate;
+    String achievement;
     String description;
+
+    @OneToOne
+    @JoinColumn(name = "link")
+    Link link;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_seeker_id")

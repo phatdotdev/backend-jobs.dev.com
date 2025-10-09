@@ -1,15 +1,14 @@
 package com.dev.job.entity.resume;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.dev.job.entity.user.JobSeeker;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.UUID;
 
 @Entity
-@Table(name = "experience")
+@Table(name = "skill")
 @Data
 @Builder
 @AllArgsConstructor
@@ -18,8 +17,11 @@ import java.util.UUID;
 public class Skill {
     @Id
     UUID id;
-
     String name;
     String level;
-    String category;
+    SkillType category;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "job_seeker_id")
+    JobSeeker jobSeeker;
 }
