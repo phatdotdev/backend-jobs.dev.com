@@ -3,11 +3,8 @@ package com.dev.job.service;
 import com.dev.job.dto.request.AuthenticationRequest;
 import com.dev.job.dto.request.User.CreateUserRequest;
 import com.dev.job.dto.response.AuthenticationResponse;
-import com.dev.job.dto.response.UserResponse;
-import com.dev.job.entity.user.JobSeeker;
-import com.dev.job.entity.user.Recruiter;
-import com.dev.job.entity.user.User;
-import com.dev.job.entity.user.UserRole;
+import com.dev.job.dto.response.User.UserResponse;
+import com.dev.job.entity.user.*;
 import com.dev.job.exceptions.BadRequestException;
 import com.dev.job.exceptions.ConflictException;
 import com.dev.job.mapper.UserMapper;
@@ -55,13 +52,17 @@ public class AuthenticationService {
             JobSeeker user = userMapper.createRequestToJobSeeker(request);
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             user.setRole(UserRole.JOBSEEKER);
+            user.setStatus(UserStatus.ACTIVE);
             user.setCreatedAt(LocalDate.now());
             return userMapper.userToResponse(jobSeekerRepository.save(user));
         } else if("RECRUITER".equals(request.getRole())){
             Recruiter user = userMapper.createRequestToRecruiter(request);
             user.setPassword(passwordEncoder.encode(request.getPassword()));
+            user.setStatus(UserStatus.ACTIVE);
             user.setRole(UserRole.RECRUITER);
             user.setCreatedAt(LocalDate.now());
+            log.info(user.getUsername());
+            log.info(request.getUsername());
             return userMapper.userToResponse(recruiterRepository.save(user));
         } else {
             throw new BadRequestException("Invalid role.");

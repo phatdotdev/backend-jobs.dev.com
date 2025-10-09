@@ -4,7 +4,7 @@ import com.dev.job.dto.ApiResponse;
 import com.dev.job.dto.request.AuthenticationRequest;
 import com.dev.job.dto.request.User.CreateUserRequest;
 import com.dev.job.dto.response.AuthenticationResponse;
-import com.dev.job.dto.response.UserResponse;
+import com.dev.job.dto.response.User.UserResponse;
 import com.dev.job.service.AuthenticationService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,10 @@
 package com.dev.job.entity.user;
 
+import com.dev.job.entity.resource.Image;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -22,10 +26,13 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     UUID id;
 
+    @NotNull
     String username;
 
+    @NotNull
     String email;
 
+    @NotNull
     String password;
 
     UserRole role;
@@ -42,5 +49,14 @@ public class User {
 
     @ManyToOne
     @JoinColumn(name = "updated_by")
+    @JsonIgnore
     User updatedBy;
+
+    @OneToOne
+    @JoinColumn(name = "avatar_id")
+    Image avatar;
+
+    @OneToOne
+    @JoinColumn(name = "cover_id")
+    Image cover;
 }
