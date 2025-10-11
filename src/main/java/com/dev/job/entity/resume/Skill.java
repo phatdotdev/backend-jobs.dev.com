@@ -16,9 +16,10 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Skill {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     UUID id;
     String name;
-    String level;
+    SkillLevel level;
     SkillType category;
 
     @ManyToOne(fetch = FetchType.LAZY)

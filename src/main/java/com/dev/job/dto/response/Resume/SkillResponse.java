@@ -9,4 +9,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SkillResponse {
+    String id;
+    String name;
+    String level;
+    String category;
 }

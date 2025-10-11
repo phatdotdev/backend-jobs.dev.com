@@ -1,8 +1,8 @@
 package com.dev.job.controller;
 
 import com.dev.job.dto.ApiResponse;
-import com.dev.job.dto.request.Resume.CreateEducationRequest;
-import com.dev.job.dto.response.Resume.EducationResponse;
+import com.dev.job.dto.request.Resume.*;
+import com.dev.job.dto.response.Resume.*;
 import com.dev.job.service.ResumeService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -47,137 +47,148 @@ public class ResumeController {
         );
     }
 
+    /********** EXPERIENCE ROUTES **********/
+
     @GetMapping("/experiences")
-    public ResponseEntity<ApiResponse<List<EducationResponse>>> getAllExperiences(Authentication authentication){
+    public ResponseEntity<ApiResponse<List<ExperienceResponse>>> getAllExperiences(Authentication authentication){
         UUID jsId = UUID.fromString(authentication.getName());
         return ResponseEntity
-                .ok(ApiResponse.<List<EducationResponse>>builder()
+                .ok(ApiResponse.<List<ExperienceResponse>>builder()
                         .success(true)
-                        .data(resumeService.getAllEducations(jsId))
+                        .data(resumeService.getAllExperiences(jsId))
                         .build()
                 );
     }
 
     @PostMapping("/experiences")
-    public ResponseEntity<ApiResponse<List<EducationResponse>>> addExperience(Authentication authentication){
+    public ResponseEntity<ApiResponse<ExperienceResponse>> addExperience(Authentication authentication, @RequestBody CreateExperienceRequest request){
         UUID jsId = UUID.fromString(authentication.getName());
         return ResponseEntity
-                .ok(ApiResponse.<List<EducationResponse>>builder()
+                .ok(ApiResponse.<ExperienceResponse>builder()
                         .success(true)
-                        .data(resumeService.getAllEducations(jsId))
+                        .data(resumeService.addExperience(request, jsId))
                         .build()
                 );
     }
 
+    /********** CERTIFICATION ROUTES **********/
+
     @GetMapping("/certifications")
-    public ResponseEntity<ApiResponse<List<EducationResponse>>> getAllCertifications(Authentication authentication){
+    public ResponseEntity<ApiResponse<List<CertificationResponse>>> getAllCertifications(Authentication authentication){
         UUID jsId = UUID.fromString(authentication.getName());
         return ResponseEntity
-                .ok(ApiResponse.<List<EducationResponse>>builder()
+                .ok(ApiResponse.<List<CertificationResponse>>builder()
                         .success(true)
-                        .data(resumeService.getAllEducations(jsId))
+                        .data(resumeService.getAllCertifications(jsId))
                         .build()
                 );
     }
 
     @PostMapping("/certifications")
-    public ResponseEntity<ApiResponse<List<EducationResponse>>> addCertification(Authentication authentication){
+    public ResponseEntity<ApiResponse<CertificationResponse>> addCertification(Authentication authentication, @RequestBody CreateCertificationRequest request){
         UUID jsId = UUID.fromString(authentication.getName());
         return ResponseEntity
-                .ok(ApiResponse.<List<EducationResponse>>builder()
+                .ok(ApiResponse.<CertificationResponse>builder()
                         .success(true)
-                        .data(resumeService.getAllEducations(jsId))
+                        .data(resumeService.addCertification(request, jsId))
                         .build()
                 );
     }
 
+    /********** SKILL ROUTES **********/
+
     @GetMapping("/skills")
-    public ResponseEntity<ApiResponse<List<EducationResponse>>> getAllSkills(Authentication authentication){
+    public ResponseEntity<ApiResponse<List<SkillResponse>>> getAllSkills(Authentication authentication){
         UUID jsId = UUID.fromString(authentication.getName());
         return ResponseEntity
-                .ok(ApiResponse.<List<EducationResponse>>builder()
+                .ok(ApiResponse.<List<SkillResponse>>builder()
                         .success(true)
-                        .data(resumeService.getAllEducations(jsId))
+                        .data(resumeService.getAllSkills(jsId))
                         .build()
                 );
     }
 
     @PostMapping("/skills")
-    public ResponseEntity<ApiResponse<List<EducationResponse>>> addSkill(Authentication authentication){
+    public ResponseEntity<ApiResponse<SkillResponse>> addSkill(Authentication authentication, @RequestBody CreateSkillRequest request){
         UUID jsId = UUID.fromString(authentication.getName());
         return ResponseEntity
-                .ok(ApiResponse.<List<EducationResponse>>builder()
+                .ok(ApiResponse.<SkillResponse>builder()
                         .success(true)
-                        .data(resumeService.getAllEducations(jsId))
+                        .data(resumeService.addSkill(request, jsId))
                         .build()
                 );
     }
 
+    /********** PROJECT ROTES **********/
+
     @GetMapping("/projects")
-    public ResponseEntity<ApiResponse<List<EducationResponse>>> getAllProjects(Authentication authentication){
+    public ResponseEntity<ApiResponse<List<ProjectResponse>>> getAllProjects(Authentication authentication){
         UUID jsId = UUID.fromString(authentication.getName());
         return ResponseEntity
-                .ok(ApiResponse.<List<EducationResponse>>builder()
+                .ok(ApiResponse.<List<ProjectResponse>>builder()
                         .success(true)
-                        .data(resumeService.getAllEducations(jsId))
+                        .data(resumeService.getAllProjects(jsId))
                         .build()
                 );
     }
 
     @PostMapping("/projects")
-    public ResponseEntity<ApiResponse<List<EducationResponse>>> addProject(Authentication authentication){
+    public ResponseEntity<ApiResponse<ProjectResponse>> addProject(Authentication authentication, @RequestBody CreateProjectRequest request){
         UUID jsId = UUID.fromString(authentication.getName());
         return ResponseEntity
-                .ok(ApiResponse.<List<EducationResponse>>builder()
+                .ok(ApiResponse.<ProjectResponse>builder()
                         .success(true)
-                        .data(resumeService.getAllEducations(jsId))
+                        .data(resumeService.addProject(request, jsId))
                         .build()
                 );
     }
 
+    /********** ACTIVITY ROUTES **********/
+
     @GetMapping("/activities")
-    public ResponseEntity<ApiResponse<List<EducationResponse>>> getAllActivities(Authentication authentication){
+    public ResponseEntity<ApiResponse<List<ActivityResponse>>> getAllActivities(Authentication authentication){
         UUID jsId = UUID.fromString(authentication.getName());
         return ResponseEntity
-                .ok(ApiResponse.<List<EducationResponse>>builder()
+                .ok(ApiResponse.<List<ActivityResponse>>builder()
                         .success(true)
-                        .data(resumeService.getAllEducations(jsId))
+                        .data(resumeService.getAllActivities(jsId))
                         .build()
                 );
     }
 
     @PostMapping("/activities")
-    public ResponseEntity<ApiResponse<List<EducationResponse>>> addActivity(Authentication authentication){
+    public ResponseEntity<ApiResponse<ActivityResponse>> addActivity(Authentication authentication, @RequestBody CreateActivityRequest request){
         UUID jsId = UUID.fromString(authentication.getName());
         return ResponseEntity
-                .ok(ApiResponse.<List<EducationResponse>>builder()
+                .ok(ApiResponse.<ActivityResponse>builder()
                         .success(true)
-                        .data(resumeService.getAllEducations(jsId))
+                        .data(resumeService.addActivity(request, jsId))
                         .build()
                 );
     }
 
+    /********** AWARD ROUTES **********/
+
     @GetMapping("/awards")
-    public ResponseEntity<ApiResponse<List<EducationResponse>>> getAllAwards(Authentication authentication){
+    public ResponseEntity<ApiResponse<List<AwardResponse>>> getAllAwards(Authentication authentication){
         UUID jsId = UUID.fromString(authentication.getName());
         return ResponseEntity
-                .ok(ApiResponse.<List<EducationResponse>>builder()
+                .ok(ApiResponse.<List<AwardResponse>>builder()
                         .success(true)
-                        .data(resumeService.getAllEducations(jsId))
+                        .data(resumeService.getAllAwards(jsId))
                         .build()
                 );
     }
 
     @PostMapping("/awards")
-    public ResponseEntity<ApiResponse<List<EducationResponse>>> addAward(Authentication authentication){
+    public ResponseEntity<ApiResponse<AwardResponse>> addAward(Authentication authentication, @RequestBody CreateAwardRequest request){
         UUID jsId = UUID.fromString(authentication.getName());
         return ResponseEntity
-                .ok(ApiResponse.<List<EducationResponse>>builder()
+                .ok(ApiResponse.<AwardResponse>builder()
                         .success(true)
-                        .data(resumeService.getAllEducations(jsId))
+                        .data(resumeService.addAward(request, jsId))
                         .build()
                 );
     }
-
 
 }

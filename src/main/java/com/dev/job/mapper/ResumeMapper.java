@@ -25,6 +25,9 @@ public interface ResumeMapper {
     Project toProject(CreateProjectRequest request);
     ProjectResponse toProjectResponse(Project project);
 
+    Certification toCertification(CreateCertificationRequest request);
+    CertificationResponse toCertificationResponse(Certification certification);
+
     Resume toResume(CreateResumeRequest request);
     ResumeResponse toResumeResponse(Resume resume);
 }

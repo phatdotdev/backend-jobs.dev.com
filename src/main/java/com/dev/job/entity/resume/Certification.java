@@ -16,6 +16,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Certification {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     UUID id;
     String name;
     String issuer;

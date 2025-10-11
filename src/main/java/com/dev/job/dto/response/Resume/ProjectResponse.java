@@ -9,4 +9,9 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProjectResponse {
+    String id;
+    String name;
+    String description;
+    String role;
+    String result;
 }

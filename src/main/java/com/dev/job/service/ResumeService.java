@@ -135,6 +135,23 @@ public class ResumeService {
         return resumeMapper.toProjectResponse(projectRepository.save(project));
     }
 
+    /*********** CERTIFICATION SERVICE **********/
+    public List<CertificationResponse> getAllCertifications(UUID jsId) {
+        return certificationRepository
+                .findByJobSeekerId(jsId)
+                .stream()
+                .map(resumeMapper::toCertificationResponse)
+                .toList();
+    }
+
+    public CertificationResponse addCertification(CreateCertificationRequest request, UUID jsId) {
+        JobSeeker jobSeeker = getJobSeeker(jsId);
+        Certification certification = resumeMapper.toCertification(request);
+        certification.setJobSeeker(jobSeeker);
+        return resumeMapper.toCertificationResponse(certificationRepository.save(certification));
+    }
+
+
     /*********** RESUME SERVICE **********/
 
     public List<ResumeResponse> getResume(UUID jsId) {

@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 import java.util.UUID;
 
 @Entity
-@Table(name = "skill")
+@Table(name = "project")
 @Data
 @Builder
 @AllArgsConstructor
@@ -17,6 +17,7 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Project {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     UUID id;
 
     String name;

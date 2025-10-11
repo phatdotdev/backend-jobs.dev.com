@@ -17,6 +17,7 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Resume {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     UUID id;
 
     String introduction;
