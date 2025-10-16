@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -18,4 +19,6 @@ public class ExperienceResponse {
     LocalDate startDate;
     LocalDate endDate;
     String description;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
 }

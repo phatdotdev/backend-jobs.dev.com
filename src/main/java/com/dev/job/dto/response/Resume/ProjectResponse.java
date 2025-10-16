@@ -3,6 +3,8 @@ package com.dev.job.dto.response.Resume;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -14,4 +16,6 @@ public class ProjectResponse {
     String description;
     String role;
     String result;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
 }

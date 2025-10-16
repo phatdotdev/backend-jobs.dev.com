@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -19,4 +20,6 @@ public class CertificationResponse {
     String credentialId;
     String credentialUrl;
     String description;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
 }

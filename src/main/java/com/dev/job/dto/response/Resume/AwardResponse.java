@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -19,4 +20,6 @@ public class AwardResponse {
     String achievement;
     String description;
     Link link;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
 }

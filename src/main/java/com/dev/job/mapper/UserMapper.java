@@ -22,7 +22,9 @@ public interface UserMapper {
     UserResponse userToResponse(JobSeeker user);
     UserResponse userToResponse(Recruiter user);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateRequestToJobSeeker(@MappingTarget JobSeeker jobSeeker, UpdateJobSeekerRequest request);
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateRequestToRecruiter(@MappingTarget Recruiter recruiter, UpdateRecruiterRequest request);
 
     JobSeekerResponse jobSeekerToResponse(JobSeeker jobSeeker);

@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @SpringBootApplication
 public class JobApplication {
@@ -30,7 +30,7 @@ public class JobApplication {
                 admin.setPassword(encoder.encode("12345678"));
                 admin.setRole(UserRole.ADMIN);
                 admin.setStatus(UserStatus.ACTIVE);
-                admin.setCreatedAt(LocalDate.now());
+                admin.setCreatedAt(LocalDateTime.now());
                 repository.save(admin);
             }
         };

@@ -26,7 +26,7 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {
-        "/auth/signup", "/auth/token", "/auth/login", "/auth/refresh", "/auth/logout"
+        "/auth/signup", "/auth/token", "/auth/login", "/auth/refresh", "/auth/logout","/ws/**", "/topic/**", "/app/**", "/chat/**"
     };
 
     @Autowired
@@ -41,7 +41,7 @@ public class SecurityConfig {
             .addFilterBefore(new CorsFilter(corsConfigurationSource()), AuthorizationFilter.class)
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(request -> request
-            .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll().anyRequest().authenticated());
+            .requestMatchers(PUBLIC_ENDPOINTS).permitAll().anyRequest().authenticated());
         httpSecurity.oauth2ResourceServer(oauth2 -> oauth2
                 .bearerTokenResolver(cookieBearerTokenResolver)
                 .jwt(jwtConfigurer -> jwtConfigurer

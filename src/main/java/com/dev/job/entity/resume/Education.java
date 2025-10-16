@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -32,4 +33,7 @@ public class Education {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_seeker_id")
     JobSeeker jobSeeker;
+
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
 }

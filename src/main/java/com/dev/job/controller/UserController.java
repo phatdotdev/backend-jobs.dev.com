@@ -6,7 +6,6 @@ import com.dev.job.dto.request.User.UpdateRecruiterRequest;
 import com.dev.job.dto.response.User.JobSeekerResponse;
 import com.dev.job.dto.response.User.RecruiterResponse;
 import com.dev.job.dto.response.User.UserResponse;
-import com.dev.job.entity.user.User;
 import com.dev.job.service.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +17,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -29,6 +28,16 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
     UserService userService;
+
+    @GetMapping("/all")
+    ResponseEntity<ApiResponse<List<UserResponse>>> getAllUsers(){
+        return ResponseEntity.ok(
+                ApiResponse.<List<UserResponse>>builder()
+                        .success(true)
+                        .data(userService.getAllUsers())
+                        .build()
+        );
+    }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping

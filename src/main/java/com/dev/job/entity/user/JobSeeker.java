@@ -21,8 +21,7 @@ public class JobSeeker extends User{
     String lastname;
     String phone;
     String address;
-    @Enumerated(EnumType.STRING)
-    UserGender gender;
+    String gender;
     LocalDate dob;
 
     @OneToMany(mappedBy = "jobSeeker", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -10,7 +10,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateRecruiterRequest {
     String username;
-    String name;
+    String companyName;
     String description;
     String phone;
     String address;

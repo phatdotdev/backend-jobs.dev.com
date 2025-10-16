@@ -19,7 +19,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -30,6 +31,14 @@ public class UserService {
     JobSeekerRepository jobSeekerRepository;
     RecruiterRepository recruiterRepository;
     UserMapper userMapper;
+
+    public List<UserResponse> getAllUsers(){
+        return userRepository
+                .findAll()
+                .stream()
+                .map(userMapper::toResponse)
+                .toList();
+    }
 
     public Page<UserResponse> getAllUsers(Pageable pageable){
         return userRepository.findAll(pageable).map(userMapper::toResponse);
@@ -51,7 +60,7 @@ public class UserService {
         JobSeeker jobSeeker = jobSeekerRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Job seeker not found."));
         userMapper.updateRequestToJobSeeker(jobSeeker, request);
-        jobSeeker.setUpdatedAt(LocalDate.now());
+        jobSeeker.setUpdatedAt(LocalDateTime.now());
         jobSeeker.setUpdatedBy(userRepository.findById(id).orElse(null));
         return userMapper.jobSeekerToResponse(jobSeekerRepository.save(jobSeeker));
     }
@@ -68,7 +77,7 @@ public class UserService {
         Recruiter recruiter = recruiterRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Recruiter not found."));
         userMapper.updateRequestToRecruiter(recruiter, request);
-        recruiter.setUpdatedAt(LocalDate.now());
+        recruiter.setUpdatedAt(LocalDateTime.now());
         return userMapper.recruiterToResponse(recruiterRepository.save(recruiter));
     }
 

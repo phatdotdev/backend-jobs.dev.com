@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -19,4 +20,6 @@ public class EducationResponse {
     LocalDate endDate;
     Double grade;
     String description;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
 }

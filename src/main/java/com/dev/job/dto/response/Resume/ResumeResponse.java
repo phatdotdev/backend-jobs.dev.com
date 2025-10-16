@@ -3,6 +3,7 @@ package com.dev.job.dto.response.Resume;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -19,5 +20,8 @@ public class ResumeResponse {
     List<CertificationResponse> certifications;
     List<AwardResponse> awards;
     List<ActivityResponse> activities;
+
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
 
 }

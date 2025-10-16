@@ -21,7 +21,7 @@ public class RecruiterResponse {
     String email;
     UserRole role;
     String status;
-    String name;
+    String companyName;
     String description;
     String phone;
     String address;

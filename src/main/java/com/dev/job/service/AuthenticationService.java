@@ -24,7 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
@@ -53,14 +53,14 @@ public class AuthenticationService {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             user.setRole(UserRole.JOBSEEKER);
             user.setStatus(UserStatus.ACTIVE);
-            user.setCreatedAt(LocalDate.now());
+            user.setCreatedAt(LocalDateTime.now());
             return userMapper.userToResponse(jobSeekerRepository.save(user));
         } else if("RECRUITER".equals(request.getRole())){
             Recruiter user = userMapper.createRequestToRecruiter(request);
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             user.setStatus(UserStatus.ACTIVE);
             user.setRole(UserRole.RECRUITER);
-            user.setCreatedAt(LocalDate.now());
+            user.setCreatedAt(LocalDateTime.now());
             log.info(user.getUsername());
             log.info(request.getUsername());
             return userMapper.userToResponse(recruiterRepository.save(user));
