@@ -13,14 +13,21 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CreateActivityRequest {
-    @NotNull
-    @Size(min = 1, max = 255)
+
+    @NotNull(message = "Activity name must not be null")
+    @Size(min = 1, max = 255, message = "Activity name must be between 1 and 255 characters")
     String name;
-    @NotNull
+
+    @NotNull(message = "Organization must not be null")
     String organization;
-    @NotNull
+
+    @NotNull(message = "Role must not be null")
     String role;
+
     LocalDate startDate;
+
     LocalDate endDate;
+
+    @Size(max = 1000, message = "Description must not exceed 1000 characters")
     String description;
 }

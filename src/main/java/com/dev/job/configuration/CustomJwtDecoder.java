@@ -18,8 +18,8 @@ import java.util.Date;
 
 @Component
 public class CustomJwtDecoder implements JwtDecoder {
-    @Value("${jwt.signer-key}")
-    private String signerKey;
+    @Value("${jwt.access-key}")
+    private String accessKey;
 
     private NimbusJwtDecoder nimbusJwtDecoder;
 
@@ -28,7 +28,7 @@ public class CustomJwtDecoder implements JwtDecoder {
         try {
             SignedJWT signedJWT = SignedJWT.parse(token);
 
-            if(!signedJWT.verify(new MACVerifier(signerKey.getBytes()))){
+            if(!signedJWT.verify(new MACVerifier(accessKey.getBytes()))){
                 throw new UnauthenticatedException("Invalid JWT signature.");
             }
 
@@ -38,7 +38,7 @@ public class CustomJwtDecoder implements JwtDecoder {
             }
 
             if(nimbusJwtDecoder == null){
-                SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HmacSHA512");
+                SecretKeySpec secretKeySpec = new SecretKeySpec(accessKey.getBytes(), "HmacSHA512");
                 nimbusJwtDecoder = NimbusJwtDecoder.withSecretKey(secretKeySpec)
                         .macAlgorithm(MacAlgorithm.HS512)
                         .build();

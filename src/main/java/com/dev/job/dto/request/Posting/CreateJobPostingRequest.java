@@ -1,7 +1,6 @@
 package com.dev.job.dto.request.Posting;
 
 import com.dev.job.entity.posting.JobType;
-import com.dev.job.entity.posting.PostState;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -17,30 +16,40 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CreateJobPostingRequest {
 
-    @NotBlank
-    @Size(max = 255)
+    @NotBlank(message = "Job title must not be blank.")
+    @Size(max = 255, message = "Job title must not exceed 255 characters.")
     String title;
 
-    @NotNull
+    @NotNull(message = "Job type must not be null.")
     JobType type;
 
-    @NotBlank
+    @NotBlank(message = "Experience requirement must not be blank.")
+    String experience;
+
+    @NotNull(message = "Minimum salary must not be null.")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Minimum salary must be greater than 0.")
+    BigDecimal minSalary;
+
+    @NotNull(message = "Maximum salary must not be null.")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Maximum salary must be greater than 0.")
+    BigDecimal maxSalary;
+
+    @NotBlank(message = "Job description must not be blank.")
+    @Size(min = 50, message = "Job description must contain at least 50 characters.")
     String description;
 
-    @NotBlank
+    @NotBlank(message = "Job requirements must not be blank.")
+    @Size(min = 50, message = "Job requirements must contain at least 50 characters.")
     String requirements;
 
+    @NotBlank(message = "Job benefits must not be blank.")
+    @Size(min = 50, message = "Job benefits must contain at least 50 characters.")
     String benefits;
 
-    @DecimalMin(value = "0.0", inclusive = false)
-    BigDecimal promotedSalary;
-
-    @NotNull
+    @NotNull(message = "Location ID must not be null.")
     UUID locationId;
 
-    @NotNull
-    PostState state;
-
-    @FutureOrPresent
+    @FutureOrPresent(message = "Expiration date must be today or a future date.")
+    @NotNull(message = "Expiration date must not be null.")
     LocalDateTime expiredAt;
 }

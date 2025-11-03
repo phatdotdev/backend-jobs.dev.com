@@ -7,13 +7,16 @@ import com.dev.job.dto.response.User.UserResponse;
 import com.dev.job.entity.user.*;
 import com.dev.job.exceptions.BadRequestException;
 import com.dev.job.exceptions.ConflictException;
+import com.dev.job.exceptions.UnauthenticatedException;
 import com.dev.job.mapper.UserMapper;
 import com.dev.job.repository.User.JobSeekerRepository;
 import com.dev.job.repository.User.RecruiterRepository;
 import com.dev.job.repository.User.UserRepository;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -27,6 +30,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -40,8 +44,12 @@ public class AuthenticationService {
     PasswordEncoder passwordEncoder;
 
     @NonFinal
-    @Value("${jwt.signer-key}")
-    private String SIGNER_KEY;
+    @Value("${jwt.access-key}")
+    private String ACCESS_KEY;
+
+    @NonFinal
+    @Value("${jwt.refresh-key}")
+    private String REFRESH_KEY;
 
     public UserResponse signup(CreateUserRequest request){
         if(userRepository.existsByEmail(request.getEmail())){
@@ -75,11 +83,16 @@ public class AuthenticationService {
         boolean passwordCorrect = passwordEncoder.matches(request.getPassword(), user.getPassword());
         if(!passwordCorrect)
             throw new BadRequestException("Invalid email or password.");
-        String token = generateToken(user);
-        return AuthenticationResponse.builder().authenticated(true).token(token).build();
+        String accessToken = generateAccessToken(user);
+        String refreshToken = generateRefreshToken(user);
+        return AuthenticationResponse.builder()
+                .authenticated(true)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 
-    private String generateToken(User user){
+    private String generateAccessToken(User user){
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet
                 .Builder()
@@ -95,11 +108,71 @@ public class AuthenticationService {
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
         JWSObject jwsObject = new JWSObject(header, payload);
         try {
-            jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
+            jwsObject.sign(new MACSigner(ACCESS_KEY.getBytes()));
             return jwsObject.serialize();
         }catch (JOSEException e){
-            log.error("Cannot create token", e);
+            log.error("Cannot create access token", e);
             throw new RuntimeException(e);
         }
     }
+
+    public String refresh(String refreshToken) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(refreshToken);
+            boolean verified = signedJWT.verify(new MACVerifier(REFRESH_KEY.getBytes()));
+            if (!verified) throw new UnauthenticatedException("Invalid refresh token.");
+
+            JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
+            if (!"refresh".equals(claims.getClaim("type"))) {
+                throw new UnauthenticatedException("Invalid token type.");
+            }
+
+            UUID userId = UUID.fromString(claims.getSubject());
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new BadRequestException("User not found."));
+
+            return  generateAccessToken(user);
+
+        } catch (Exception e) {
+            throw new UnauthenticatedException("Refresh token invalid or expired.");
+        }
+    }
+
+    public boolean introspect(String token) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            boolean verified = signedJWT.verify(new MACVerifier(ACCESS_KEY.getBytes()));
+            if (!verified) return false;
+
+            Date expiration = signedJWT.getJWTClaimsSet().getExpirationTime();
+            return expiration != null && expiration.after(new Date());
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+
+    private String generateRefreshToken(User user){
+        JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet
+                .Builder()
+                .subject(String.valueOf(user.getId()))
+                .issuer("do.dev")
+                .issueTime(new Date())
+                .expirationTime(new Date(
+                        Instant.now().plus(30, ChronoUnit.DAYS).toEpochMilli()
+                ))
+                .claim("type", "refresh")
+                .build();
+        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+        JWSObject jwsObject = new JWSObject(header, payload);
+        try {
+            jwsObject.sign(new MACSigner(REFRESH_KEY.getBytes()));
+            return jwsObject.serialize();
+        } catch (JOSEException e) {
+            log.error("Cannot create refresh token", e);
+            throw new RuntimeException(e);
+        }
+    }
+
 }

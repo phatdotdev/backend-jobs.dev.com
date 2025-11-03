@@ -2,6 +2,7 @@ server:
   port: 8080
   servlet:
     context-path: /api/v1
+
 spring:
   application:
     name: job
@@ -12,5 +13,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
 jwt:
-  signer-key: "xn6j08mmk782qbf8iun443h92tloi83tci3mibe9yemiek4hgrqn50yp9k0idz1p"
+  access-key: "xn6j08mmk782qbf8iun443h92tloi83tci3mibe9yemiek4hgrqn50yp9k0idz1p"
+  refresh-key: "r7gk2v9xq1m3z8n4t5b6w0eudcylpohfajskgqzvnmxrtwcbieo7l2p9h3udkq0m"
+file:
+  upload-dir: D:\assignments\CT250\job-backend\uploads

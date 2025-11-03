@@ -10,7 +10,7 @@ public class CookieBearerTokenResolver implements BearerTokenResolver {
     public String resolve(HttpServletRequest request) {
         if(request.getCookies() == null) return null;
         for(var cookie: request.getCookies()){
-            if("token".equals(cookie.getName())){
+            if("access_token".equals(cookie.getName())){
                 return cookie.getValue();
             }
         }

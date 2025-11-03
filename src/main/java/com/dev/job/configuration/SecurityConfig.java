@@ -26,7 +26,19 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {
-        "/auth/signup", "/auth/token", "/auth/login", "/auth/refresh", "/auth/logout","/ws/**", "/topic/**", "/app/**", "/chat/**"
+        "/auth/signup",
+        "/auth/token",
+        "/auth/login",
+        "/auth/refresh",
+        "/auth/logout",
+        "/postings/search",
+        "/users/companies",
+        "/users/companies/**",
+        "/files/**",
+        "/ws/**",
+        "/topic/**",
+        "/app/**",
+        "/chat/**"
     };
 
     @Autowired

@@ -13,23 +13,27 @@ import java.time.LocalDate;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CreateEducationRequest {
 
-    @NotBlank
-    @Size(max = 255)
+    @NotBlank(message = "School name must not be blank")
+    @Size(max = 255, message = "School name must not exceed 255 characters")
     String schoolName;
 
-    @NotBlank
-    @Size(max = 255)
+    @NotBlank(message = "Degree must not be blank")
+    @Size(max = 255, message = "Degree must not exceed 255 characters")
     String degree;
+
+    @Size(max = 255, message = "Major must not exceed 255 characters")
     String major;
 
-    @PastOrPresent
+    @PastOrPresent(message = "Start date must be in the past or present")
+    @NotNull(message = "Start date must not be null")
     LocalDate startDate;
+
     LocalDate endDate;
 
-    @DecimalMax(value = "4.0")
-    @DecimalMin(value = "0.0")
+    @DecimalMin(value = "0.0", inclusive = true, message = "Grade must be at least 0.0")
+    @DecimalMax(value = "4.0", inclusive = true, message = "Grade must not exceed 4.0")
     Double grade;
 
-    @Size(max = 1000)
+    @Size(max = 1000, message = "Description must not exceed 1000 characters")
     String description;
 }

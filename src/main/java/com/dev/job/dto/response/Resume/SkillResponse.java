@@ -15,6 +15,7 @@ public class SkillResponse {
     String name;
     String level;
     String category;
+    String description;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 }

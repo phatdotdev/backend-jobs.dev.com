@@ -15,21 +15,20 @@ import java.time.LocalDate;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CreateAwardRequest {
 
-    @NotNull
-    @Size(min = 1, max = 255)
+    @NotNull(message = "Award name must not be null")
+    @Size(min = 1, max = 255, message = "Award name must be between 1 and 255 characters")
     String name;
 
-    @NotNull
-    @Size(min = 1, max = 255)
+    @NotNull(message = "Organization must not be null")
+    @Size(min = 1, max = 255, message = "Organization must be between 1 and 255 characters")
     String organization;
 
-    @PastOrPresent
+    @PastOrPresent(message = "Received date must be in the past or present")
     LocalDate receivedDate;
 
-    @Size(max = 255)
+    @Size(max = 255, message = "Achievement must not exceed 255 characters")
     String achievement;
 
-    @Size(max = 1000)
+    @Size(max = 1000, message = "Description must not exceed 1000 characters")
     String description;
-
 }

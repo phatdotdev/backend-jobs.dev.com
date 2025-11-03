@@ -21,6 +21,8 @@ public class Resume {
     @GeneratedValue(strategy = GenerationType.UUID)
     UUID id;
 
+    String title;
+
     String introduction;
 
     @Column(name = "object_career")

@@ -2,11 +2,13 @@ package com.dev.job.dto.response.Posting;
 
 import com.dev.job.entity.posting.JobType;
 import com.dev.job.entity.posting.PostState;
+import com.dev.job.entity.resource.Location;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -20,22 +22,26 @@ public class JobPostingResponse {
     String title;
     JobType type;
 
+    String companyName;
+    String companyAvatar;
+
+    String experience;
+
+    BigDecimal minSalary;
+    BigDecimal maxSalary;
+
     String description;
     String requirements;
     String benefits;
-
-    BigDecimal promotedSalary;
-
-    UUID locationId;
 
     PostState state;
 
     int views;
     int likes;
 
-    LocalDateTime createdAt;
-    LocalDateTime updatedAt;
-    LocalDateTime expiredAt;
+    Location location;
+    List<String> imageNames;
 
-    String recruiterName;
+    LocalDateTime createdAt;
+    LocalDateTime expiredAt;
 }

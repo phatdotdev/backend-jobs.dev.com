@@ -22,6 +22,7 @@ public class Skill {
     String name;
     SkillLevel level;
     SkillType category;
+    String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_seeker_id")

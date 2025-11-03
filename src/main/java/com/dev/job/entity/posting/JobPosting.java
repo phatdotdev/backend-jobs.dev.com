@@ -1,16 +1,17 @@
 package com.dev.job.entity.posting;
 
+import com.dev.job.entity.resource.Image;
 import com.dev.job.entity.resource.Location;
 import com.dev.job.entity.user.Recruiter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.Locale;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -20,6 +21,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class JobPosting {
 
     @Id
@@ -27,7 +29,12 @@ public class JobPosting {
     UUID id;
 
     String title;
+
+    BigDecimal minSalary;
+    BigDecimal maxSalary;
+
     JobType type;
+    String experience;
 
     @Lob
     String description;
@@ -38,7 +45,12 @@ public class JobPosting {
     @Lob
     String benefits;
 
-    BigDecimal promotedSalary;
+
+    @Transient
+            String companyName;
+
+    @Transient
+            String companyAvatar;
 
     @JoinColumn(name = "location_id")
     @ManyToOne
@@ -50,9 +62,15 @@ public class JobPosting {
     int views;
     int likes;
 
-    LocalDate createdAt;
-    LocalDate updatedAt;
-    LocalDate expiredAt;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
+
+
+    LocalDateTime expiredAt;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "job_id")
+    List<Image> images;
 
     @JsonIgnore
     @ManyToOne

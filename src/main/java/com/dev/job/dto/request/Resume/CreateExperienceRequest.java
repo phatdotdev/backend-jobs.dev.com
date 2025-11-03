@@ -1,7 +1,7 @@
 package com.dev.job.dto.request.Resume;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -16,18 +16,20 @@ import java.time.LocalDate;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CreateExperienceRequest {
 
-    @NotBlank
-    @Size(max = 255)
+    @NotBlank(message = "Company name must not be blank")
+    @Size(max = 255, message = "Company name must not exceed 255 characters")
     String companyName;
 
-    @NotBlank
-    @Size(max = 255)
+    @NotBlank(message = "Position must not be blank")
+    @Size(max = 255, message = "Position must not exceed 255 characters")
     String position;
 
-    @PastOrPresent
+    @PastOrPresent(message = "Start date must be in the past or present")
+    @NotNull(message = "Start date must not be null")
     LocalDate startDate;
+
     LocalDate endDate;
 
-    @Size(max = 1000)
+    @Size(max = 1000, message = "Description must not exceed 1000 characters")
     String description;
 }
