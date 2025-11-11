@@ -71,6 +71,8 @@ public class AuthenticationService {
             user.setCreatedAt(LocalDateTime.now());
             log.info(user.getUsername());
             log.info(request.getUsername());
+            log.info(user.getPassword());
+            log.info(request.getPassword());
             return userMapper.userToResponse(recruiterRepository.save(user));
         } else {
             throw new BadRequestException("Invalid role.");
@@ -78,11 +80,11 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request){
-        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() ->
-            new BadRequestException("Invalid email or password."));
+        User user = userRepository.findByEmailOrUsername(request.getEmail(), request.getEmail()).orElseThrow(() ->
+            new BadRequestException("Invalid email."));
         boolean passwordCorrect = passwordEncoder.matches(request.getPassword(), user.getPassword());
         if(!passwordCorrect)
-            throw new BadRequestException("Invalid email or password.");
+            throw new BadRequestException("Invalid password.");
         String accessToken = generateAccessToken(user);
         String refreshToken = generateRefreshToken(user);
         return AuthenticationResponse.builder()

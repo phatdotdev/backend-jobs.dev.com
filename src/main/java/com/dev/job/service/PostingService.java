@@ -229,8 +229,9 @@ public class PostingService {
 
         if (!seeker.getViews().contains(post)) {
             seeker.getViews().add(post);
+            post.setViews(post.getViews()+1);
             jobSeekerRepository.save(seeker);
-
+            jobPostingRepository.save(post);
         }
     }
 

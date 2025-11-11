@@ -161,15 +161,15 @@ public class PostingController {
     }
 
     @PostMapping("/{postId}/like")
-    public ResponseEntity<?> likePost(@PathVariable UUID postId, @RequestParam UUID seekerId) {
-        postingService.toggleLike(seekerId, postId);
-        return ResponseEntity.ok("Liked/Unliked!");
+    public ResponseEntity<ApiResponse<String>> likePost(@PathVariable UUID postId, Authentication authentication) {
+        postingService.toggleLike(UUID.fromString(authentication.getName()), postId);
+        return ok("Liked/Unliked!");
     }
 
     @PostMapping("/{postId}/view")
-    public ResponseEntity<?> viewPost(@PathVariable UUID postId, @RequestParam UUID seekerId) {
-        postingService.markAsViewed(seekerId, postId);
-        return ResponseEntity.ok("View!");
+    public ResponseEntity<ApiResponse<String>> viewPost(@PathVariable UUID postId, Authentication authentication) {
+        postingService.markAsViewed(UUID.fromString(authentication.getName()), postId);
+        return ok("View!");
     }
 
 
