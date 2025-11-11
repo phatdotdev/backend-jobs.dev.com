@@ -70,10 +70,12 @@ public class PostingController {
         @RequestParam(defaultValue = "10") int size
     ){
         Page<JobPostingResponse> results = postingService.searchJobPostings(keyword, minSalary, maxSalary, locationId, type, page, size);
-        return ResponseEntity.ok(ApiResponse
-                .<Page<JobPostingResponse>>builder()
-                .data(results)
-                .build());
+        return ok(results);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<JobPostingResponse>> getJobPostById(@PathVariable UUID id){
+        return ok(postingService.getJobPosting(id));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -157,5 +159,18 @@ public class PostingController {
         postingService.deleteJobPosting(postId, userId);
         return ok("Delete post successfully.");
     }
+
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<?> likePost(@PathVariable UUID postId, @RequestParam UUID seekerId) {
+        postingService.toggleLike(seekerId, postId);
+        return ResponseEntity.ok("Liked/Unliked!");
+    }
+
+    @PostMapping("/{postId}/view")
+    public ResponseEntity<?> viewPost(@PathVariable UUID postId, @RequestParam UUID seekerId) {
+        postingService.markAsViewed(seekerId, postId);
+        return ResponseEntity.ok("View!");
+    }
+
 
 }

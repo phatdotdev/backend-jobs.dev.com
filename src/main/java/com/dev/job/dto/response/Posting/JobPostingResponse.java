@@ -1,13 +1,17 @@
 package com.dev.job.dto.response.Posting;
 
+import com.dev.job.entity.application.Application;
 import com.dev.job.entity.posting.JobType;
 import com.dev.job.entity.posting.PostState;
 import com.dev.job.entity.resource.Location;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.OneToMany;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,7 +27,6 @@ public class JobPostingResponse {
     JobType type;
 
     String companyName;
-    String companyAvatar;
 
     String experience;
 
@@ -40,8 +43,10 @@ public class JobPostingResponse {
     int likes;
 
     Location location;
+    String avatarUrl;
     List<String> imageNames;
 
     LocalDateTime createdAt;
     LocalDateTime expiredAt;
+
 }

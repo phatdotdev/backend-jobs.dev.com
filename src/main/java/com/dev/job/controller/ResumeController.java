@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import static com.dev.job.utils.ResponseHelper.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -73,6 +74,12 @@ public class ResumeController {
                         .data(resumeService.updateResume(request, rId, jsId))
                         .build()
         );
+    }
+
+    @DeleteMapping("/resumes/{resumeId}")
+    public ResponseEntity<ApiResponse<String>> deleteResume(@PathVariable UUID resumeId, Authentication authentication ){
+        UUID jsId = UUID.fromString(authentication.getName());
+        return ok(resumeService.deleteResume(resumeId, jsId));
     }
 
     /*********** EDUCATION ROUTES **********/

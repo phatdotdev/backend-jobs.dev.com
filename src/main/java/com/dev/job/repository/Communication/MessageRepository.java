@@ -13,8 +13,15 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
             "(m.senderId = :user1 and m.receiverId = :user2) or" +
             "(m.senderId = :user2 and m.receiverId = :user1)" +
             "order by m.timestamp asc")
-    List<Message> findChatBetweenUsers(@Param("user1") String user1, @Param("user2") String user2);
+    List<Message> findChatBetweenUsers(@Param("user1") UUID user1, @Param("user2") UUID user2);
 
     @Query("SELECT m FROM Message m WHERE m.senderId = :userId OR m.receiverId = :userId ORDER BY m.timestamp DESC")
-    List<Message> findAllMessageByUser(@Param("userId") String userId);
-}
+    List<Message> findAllMessageByUser(@Param("userId") UUID userId);
+
+    @Query(value =
+            "SELECT DISTINCT m.senderId FROM Message m WHERE m.receiverId = :userId " +
+                    "UNION " +
+                    "SELECT DISTINCT m.receiverId FROM Message m WHERE m.senderId = :userId"
+    )
+    List<UUID> findDistinctPartnersByUserId(@Param("userId") UUID userId);
+    List<Message> findBySenderIdAndReceiverIdAndIsReadFalse(UUID senderId, UUID receiverId);}

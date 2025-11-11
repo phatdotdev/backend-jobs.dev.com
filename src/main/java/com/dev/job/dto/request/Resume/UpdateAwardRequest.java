@@ -7,6 +7,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -14,6 +15,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateAwardRequest {
+    UUID id;
+
     @NotNull(message = "Award name must not be null")
     @Size(min = 1, max = 255, message = "Award name must be between 1 and 255 characters")
     String name;

@@ -17,9 +17,11 @@ import com.dev.job.specification.ExpertSpecification;
 import com.dev.job.specification.JobSeekerSpecification;
 import com.dev.job.specification.RecruiterSpecification;
 import com.dev.job.specification.UserSpecification;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +31,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -95,12 +98,31 @@ public class UserService {
         return userPage.map(userMapper::toResponse);
     }
 
-    public UserResponse getUserInfo(UUID userId){
-        return userMapper.toResponse(getUserById(userId));
+
+    public UserResponse getUserInfo(UUID userId) {
+        User user = getUserById(userId);
+        UserResponse response = userMapper.toResponse(user);
+
+        String avatarUrl = (user.getAvatar() != null && user.getAvatar().getFileName() != null)
+                ? user.getAvatar().getFileName()
+                : "";
+        response.setAvatarUrl(avatarUrl);
+
+        String coverUrl = (user.getCover() != null && user.getCover().getFileName() != null)
+                ? user.getCover().getFileName()
+                : "";
+        response.setCoverUrl(coverUrl);
+
+        return response;
     }
 
+    List<UserResponse> getUserList(List<UUID> ids){
+        return userRepository.findAllById(ids).stream().map(this::userToUserResponse).toList();
+    }
+
+
     public Page<UserResponse> getAllUsers(Pageable pageable){
-        return userRepository.findAll(pageable).map(userMapper::toResponse);
+        return userRepository.findAll(pageable).map(this::userToUserResponse);
     }
 
     public Page<UserResponse> searchUsers(String search, Pageable pageable){
@@ -222,11 +244,26 @@ public class UserService {
     /*********** USER INFO **********/
 
     public JobSeekerResponse getJobSeekerProfile(UUID id){
-        return userMapper.jobSeekerToResponse(
-            jobSeekerRepository.findById(id).orElseThrow(
+        JobSeeker js = jobSeekerRepository.findById(id).orElseThrow(
                 () -> new BadRequestException("Job seeker not found.")
-            )
         );
+         JobSeekerResponse response =userMapper.jobSeekerToResponse(js);
+         response.setAvatarUrl(js.getAvatar() != null ? js.getAvatar().getFileName() : "");
+         response.setCoverUrl(js.getCover() != null ? js.getCover().getFileName() : "");
+        return response;
+    }
+
+    @Transactional
+    public void changePassword(ChangePasswordRequest request, UUID userId){
+        User user = getUserById(userId);
+        if(!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new BadRequestException("Incorrect password.");
+        }
+        if(request.getNewPassword().equals(request.getOldPassword())){
+            throw new BadRequestException("New password must be different from old password.");
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 
     public JobSeekerResponse updateJobSeekerProfile(UpdateJobSeekerRequest request, UUID id){
@@ -239,11 +276,13 @@ public class UserService {
     }
 
     public RecruiterResponse getRecruiterProfile(UUID id){
-        return userMapper.recruiterToResponse(
-            recruiterRepository
+        Recruiter recruiter =recruiterRepository
                 .findById(id)
-                .orElseThrow(() -> new BadRequestException("Recruiter not found."))
-        );
+                .orElseThrow(() -> new BadRequestException("Recruiter not found."));
+        RecruiterResponse response = userMapper.recruiterToResponse(recruiter);
+        response.setAvatarUrl(recruiter.getAvatar() != null ? recruiter.getAvatar().getFileName() : "");
+        response.setCoverUrl(recruiter.getCover() != null ? recruiter.getCover().getFileName() : "");
+        return response;
     }
 
     public RecruiterResponse updateRecruiterProfile(UpdateRecruiterRequest request, UUID id){
@@ -262,11 +301,38 @@ public class UserService {
         return userMapper.expertToResponse(expertRepository.save(expert));
     }
 
+    /******** ID -> USERNAME *********/
+    @Cacheable(value = "usernames", key = "#userIdString")
+    public String getUsernameById(UUID userId) {
+        try {
+            return userRepository.findById(userId)
+                    .map(User::getUsername)
+                    .orElseGet(() -> {
+                        System.err.println("User not found for ID: " + userId);
+                        return "[User Deleted]";
+                    });
+        } catch (IllegalArgumentException e) {
+            System.err.println("Invalid UUID format for ID: " + userId);
+            return "[Invalid ID]";
+        }
+    }
+
+    // TEST MESSAGE
+    public List<UserResponse>getAllUsers(){
+        return userRepository.findAll().stream().map(this::userToUserResponse).toList();
+    }
 
     /*********** PRIVATE METHOD **********/
     private User getUserById(UUID userId){
         return userRepository.findById(userId)
                 .orElseThrow(() -> new BadRequestException("User not found."));
+    }
+
+    private UserResponse userToUserResponse(User user){
+        UserResponse response = userMapper.toResponse(user);
+        response.setAvatarUrl(user.getAvatar() != null ? user.getAvatar().getFileName(): "");
+        response.setCoverUrl(user.getCover() != null ? user.getCover().getFileName() : "");
+        return response;
     }
 
 }

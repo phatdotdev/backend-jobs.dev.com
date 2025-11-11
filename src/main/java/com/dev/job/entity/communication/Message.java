@@ -1,5 +1,6 @@
 package com.dev.job.entity.communication;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -20,10 +21,14 @@ public class Message {
     UUID id;
 
     @Column(name = "sender_id")
-    String senderId;
+    UUID senderId;
     @Column(name = "receiver_id")
-    String receiverId;
+    UUID receiverId;
 
     String content;
+
+    @JsonProperty("isRead")
+    boolean isRead;
+
     LocalDateTime timestamp;
 }

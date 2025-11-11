@@ -2,9 +2,14 @@ package com.dev.job.dto.request.Resume;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
 
+import java.util.UUID;
 
+@Data
 public class UpdateProjectRequest {
+    UUID id;
+
     @NotBlank(message = "Project name must not be blank")
     @Size(max = 255, message = "Project name must not exceed 255 characters")
     String name;

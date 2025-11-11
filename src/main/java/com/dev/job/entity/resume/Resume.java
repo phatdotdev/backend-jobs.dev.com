@@ -1,11 +1,13 @@
 package com.dev.job.entity.resume;
 
+import com.dev.job.entity.application.Application;
 import com.dev.job.entity.user.JobSeeker;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -49,6 +51,10 @@ public class Resume {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_seeker_id")
     JobSeeker jobSeeker;
+
+    @OneToMany(mappedBy = "resume", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    List<Application> applications = new ArrayList<>();
+
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

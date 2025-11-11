@@ -27,6 +27,8 @@ public class JobSeekerResponse {
     String address;
     String gender;
     LocalDate dob;
+    String avatarUrl;
+    String coverUrl;
     LocalDate createdAt;
     LocalDate updatedAt;
 }

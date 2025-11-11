@@ -46,6 +46,26 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             @Override
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
                 StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+
+                if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
+                    if (accessor.getUser() != null) {
+                        System.out.println("User connected via cookie/Resource Server: " + accessor.getUser().getName());
+                    } else {
+                        System.err.println("Authenticated Principal missing after successful Handshake!");
+                    }
+                }
+                return message;
+            }
+        });
+    }
+
+    /*
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(new ChannelInterceptor() {
+            @Override
+            public Message<?> preSend(Message<?> message, MessageChannel channel) {
+                StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
                 if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
                     String token = accessor.getFirstNativeHeader("Authorization");
                     if (token != null && token.startsWith("Bearer ")) {
@@ -61,4 +81,5 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             }
         });
     }
+     */
 }

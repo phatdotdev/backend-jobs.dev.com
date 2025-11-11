@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List; // Import needed for List
 import java.util.UUID;
 
 @Data
@@ -17,6 +18,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateJobPostingRequest {
+
+    UUID id;
 
     @Size(max = 255, message = "Job title must not exceed 255 characters.")
     String title;
@@ -36,8 +39,12 @@ public class UpdateJobPostingRequest {
     String benefits;
 
     UUID locationId;
-    PostState state;
 
     @FutureOrPresent(message = "Expiration date must be today or a future date.")
     LocalDateTime expiredAt;
+
+    @NotNull(message = "Post state is required.")
+    PostState state;
+
+    List<String> imagesToRetain;
 }

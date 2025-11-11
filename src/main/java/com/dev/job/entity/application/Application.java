@@ -1,18 +1,21 @@
 package com.dev.job.entity.application;
 
+import com.dev.job.entity.communication.Notification;
 import com.dev.job.entity.posting.JobPosting;
 import com.dev.job.entity.resume.Resume;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(
-        name = "application",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"post_id", "resume_id"})
+        name = "application"
 )
 @Data
 @Builder
@@ -39,4 +42,9 @@ public class Application {
     LocalDateTime appliedAt;
     @Column(name="updated_at")
     LocalDateTime updatedAt;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> notifications = new ArrayList<>();
+
 }

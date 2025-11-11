@@ -108,6 +108,16 @@ public class ResumeService {
         return resumeToResponse(resumeRepository.save(resume));
     }
 
+    public String deleteResume(UUID resumeId, UUID jsId){
+        Resume resume = resumeRepository.findById(resumeId)
+                .orElseThrow(() -> new BadRequestException("Resume not found"));
+        if (!resume.getJobSeeker().getId().equals(jsId)) {
+            throw new BadRequestException("Resume does not belong to this job seeker");
+        }
+        resumeRepository.delete(resume);
+        return "Delete resume successfully.";
+    }
+
 
     /*********** EDUCATION SERVICE **********/
 

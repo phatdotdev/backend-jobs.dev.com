@@ -1,5 +1,6 @@
 package com.dev.job.entity.posting;
 
+import com.dev.job.entity.application.Application;
 import com.dev.job.entity.resource.Image;
 import com.dev.job.entity.resource.Location;
 import com.dev.job.entity.user.Recruiter;
@@ -11,6 +12,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -71,6 +73,10 @@ public class JobPosting {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "job_id")
     List<Image> images;
+
+    @OneToMany(mappedBy = "jobPosting", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    List<Application> applications = new ArrayList<>();
+
 
     @JsonIgnore
     @ManyToOne

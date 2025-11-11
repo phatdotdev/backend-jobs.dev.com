@@ -11,6 +11,7 @@ import com.dev.job.entity.resource.Image;
 import com.dev.job.entity.user.Recruiter;
 import com.dev.job.entity.user.UserStatus;
 import com.dev.job.service.UserService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -224,6 +225,13 @@ public class UserController {
     ResponseEntity<ApiResponse<UserResponse>> getAccountInfo(Authentication authentication) {
         UUID userId = UUID.fromString(authentication.getName());
         return ok(userService.getUserInfo(userId));
+    }
+
+    @PutMapping("/password")
+    ResponseEntity<ApiResponse<String>> changePassword(@Valid @RequestBody ChangePasswordRequest request, Authentication authentication){
+        UUID userId = UUID.fromString(authentication.getName());
+        userService.changePassword(request, userId);
+        return ok("Password updated.");
     }
 
     /*********** USER INFO ***********/

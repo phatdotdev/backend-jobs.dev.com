@@ -153,7 +153,7 @@ public class UploadService {
                 System.out.println("Deleting: " + path.toAbsolutePath());
 
                 if (Files.exists(path)) {
-                    Files.delete(path); // dùng Files.delete thay vì file.delete()
+                    Files.delete(path);
                     System.out.println("Deleted: " + path.getFileName());
                 } else {
                     System.out.println("File not found: " + path.getFileName());
