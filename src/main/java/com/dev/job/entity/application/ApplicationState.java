@@ -2,7 +2,8 @@ package com.dev.job.entity.application;
 
 public enum ApplicationState {
     SUBMITTED,
-    IN_REVIEW,
+    REVIEWING,
+    REQUESTED,
     REJECTED,
     ACCEPTED,
 }

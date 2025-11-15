@@ -21,6 +21,7 @@ public class CreateRecruiterRequest {
     String password;
 
     String companyName;
+    String website;
     String description;
     String phone;
     String address;

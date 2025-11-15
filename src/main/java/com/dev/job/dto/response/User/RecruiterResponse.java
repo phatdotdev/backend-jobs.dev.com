@@ -25,6 +25,7 @@ public class RecruiterResponse {
     String description;
     String phone;
     String address;
+    String website;
     boolean verified;
     String avatarUrl;
     String coverUrl;

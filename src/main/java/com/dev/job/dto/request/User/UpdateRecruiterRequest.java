@@ -11,6 +11,7 @@ import lombok.experimental.FieldDefaults;
 public class UpdateRecruiterRequest {
     String username;
     String companyName;
+    String website;
     String description;
     String phone;
     String address;

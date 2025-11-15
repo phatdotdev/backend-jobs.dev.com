@@ -6,6 +6,7 @@ import com.dev.job.dto.response.Posting.JobPostingResponse;
 import com.dev.job.entity.posting.JobPosting;
 import com.dev.job.entity.posting.JobType;
 import com.dev.job.entity.posting.PostState;
+import com.dev.job.entity.resource.Document;
 import com.dev.job.entity.resource.Image;
 import com.dev.job.entity.user.JobSeeker;
 import com.dev.job.entity.user.Recruiter;
@@ -57,6 +58,7 @@ public class PostingService {
     @Transactional
     public JobPostingResponse createJobPosting(CreateJobPostingRequest request,
                                                List<MultipartFile> imageFiles,
+                                               List<MultipartFile> documentFiles,
                                                UUID recruiterId) throws IOException {
         JobPosting job = postingMapper.toJobPosting(request);
         job.setLocation(locationRepository.findById(request.getLocationId()).orElseThrow());
@@ -72,6 +74,11 @@ public class PostingService {
         if (imageFiles != null && !imageFiles.isEmpty()) {
             List<Image> uploadedImages = uploadService.uploadJobImages(imageFiles, job.getId());
             job.setImages(uploadedImages);
+        }
+
+        if(documentFiles != null && !documentFiles.isEmpty()){
+            List<Document> uploadedDocuments = uploadService.uploadDocuments(documentFiles, "documents/posts", job.getId());
+            job.setDocuments(uploadedDocuments);
         }
 
         jobPostingRepository.save(job);
@@ -139,7 +146,8 @@ public class PostingService {
     public JobPostingResponse updateJobPosting(UpdateJobPostingRequest request,
                                                UUID pId,
                                                UUID rId,
-                                               List<MultipartFile> imageFiles) throws IOException {
+                                               List<MultipartFile> imageFiles,
+                                               List<MultipartFile> documentFiles) throws IOException {
         JobPosting posting = jobPostingRepository.findById(pId)
                 .orElseThrow(() -> new ResourceNotFoundException("No job posting with id: " + pId));
 
@@ -148,6 +156,7 @@ public class PostingService {
         }
 
         postingMapper.updateJobPostingFromRequest(posting, request);
+        System.out.println("required documents: "+request.getRequiredDocuments());
 
         posting.setState(PostState.valueOf(request.getState().toString()));
 
@@ -155,6 +164,7 @@ public class PostingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Location not found.")));
         posting.setUpdatedAt(LocalDateTime.now());
 
+        // IMAGES
         List<String> retainedImageNames = request.getImagesToRetain();
         List<Image> currentImages = posting.getImages();
 
@@ -175,6 +185,26 @@ public class PostingService {
             }
             currentImages.addAll(uploadedNewImages);
         }
+
+        // DOCUMENTS
+        List<String> retainedDocumentNames = request.getDocumentsToRetain();
+        List<Document> currentDocuments = posting.getDocuments();
+        List<Document> documentsToDelete = currentDocuments.stream()
+                        .filter(document -> !retainedDocumentNames.contains(document.getFileName()))
+                                .toList();
+
+        if(!documentsToDelete.isEmpty()){
+            currentDocuments.removeAll(documentsToDelete);
+        }
+        if (documentFiles != null && !documentFiles.isEmpty()) {
+            List<Document> uploadedNewDocuments = uploadService.uploadDocuments(documentFiles, "documents/posts", posting.getId());
+            if (currentDocuments == null) {
+                currentDocuments = new ArrayList<>();
+                posting.setDocuments(currentDocuments);
+            }
+            currentDocuments.addAll(uploadedNewDocuments);
+        }
+
 
         jobPostingRepository.save(posting);
 
@@ -220,6 +250,14 @@ public class PostingService {
         jobPostingRepository.save(post);
     }
 
+    public boolean likedPost(UUID seekerId, UUID postId){
+        JobSeeker seeker = jobSeekerRepository.findById(seekerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Job seeker not found."));
+        JobPosting post = jobPostingRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found."));
+        return seeker.getLikes().contains(post);
+    }
+
     @Transactional
     public void markAsViewed(UUID seekerId, UUID postId) {
         JobSeeker seeker = jobSeekerRepository.findById(seekerId)
@@ -235,6 +273,13 @@ public class PostingService {
         }
     }
 
+    // GET CURRENT POSTS BY RECRUITER
+
+    public List<JobPostingResponse> getRecentPosts(UUID id){
+        return jobPostingRepository.findTop10ByRecruiterIdOrderByCreatedAtDesc(id)
+                .stream().map(this::toJobResponse).toList();
+    }
+
 
     public JobPostingResponse toJobResponse(JobPosting job) {
         return JobPostingResponse.builder()
@@ -246,16 +291,20 @@ public class PostingService {
                 .description(job.getDescription())
                 .requirements(job.getRequirements())
                 .benefits(job.getBenefits())
+                .requiredDocuments(job.getRequiredDocuments())
                 .minSalary(job.getMinSalary())
                 .maxSalary(job.getMaxSalary())
                 .location(job.getLocation())
                 .state(job.getState())
                 .views(job.getViews())
                 .likes(job.getLikes())
-                .imageNames(
+                .imageUrls(
                         job.getImages() != null
                                 ? job.getImages().stream().map(Image::getFileName).toList()
                                 : List.of()
+                )
+                .documents(
+                        job.getDocuments()
                 )
                 .avatarUrl(job.getRecruiter().getAvatar() != null
                         ? job.getRecruiter().getAvatar().getFileName()

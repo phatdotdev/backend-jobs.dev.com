@@ -10,6 +10,7 @@ import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +24,9 @@ public class ExpertResponse{
     String username;
     String email;
     String phone;
-    String companyName;
     List<ExpertiseResponse> expertises;
+    String avatarUrl;
+    String coverUrl;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
 }

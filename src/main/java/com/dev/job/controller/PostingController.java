@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.batch.BatchProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -45,11 +44,12 @@ public class PostingController {
     public ResponseEntity<ApiResponse<JobPostingResponse>> createJobPosting(
             Authentication authentication,
             @RequestParam("data") String dataJson,
-            @RequestParam(value = "images", required = false) List<MultipartFile> imageFiles
+            @RequestParam(value = "images", required = false) List<MultipartFile> imageFiles,
+            @RequestParam(value = "documents", required = false) List<MultipartFile> documentFiles
     ) throws IOException {
         CreateJobPostingRequest request = objectMapper.readValue(dataJson, CreateJobPostingRequest.class);
         UUID recruiterId = UUID.fromString(authentication.getName());
-        JobPostingResponse response = postingService.createJobPosting(request, imageFiles, recruiterId);
+        JobPostingResponse response = postingService.createJobPosting(request, imageFiles, documentFiles, recruiterId);
 
         return ResponseEntity.ok(ApiResponse.<JobPostingResponse>builder()
                 .success(true)
@@ -122,11 +122,12 @@ public class PostingController {
             Authentication authentication,
             @PathVariable UUID postingId,
             @RequestPart("data") String dataJson,
-            @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles
+            @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles,
+            @RequestParam(value = "documents", required = false) List<MultipartFile> documentFiles
     ) throws IOException {
         UUID rId = UUID.fromString(authentication.getName());
         UpdateJobPostingRequest request = objectMapper.readValue(dataJson, UpdateJobPostingRequest.class);
-        return ok(postingService.updateJobPosting(request, postingId, rId, imageFiles));
+        return ok(postingService.updateJobPosting(request, postingId, rId, imageFiles, documentFiles));
     }
 
     @NonFinal
@@ -160,16 +161,30 @@ public class PostingController {
         return ok("Delete post successfully.");
     }
 
+    // INTERACTION WITH POSTS
+
     @PostMapping("/{postId}/like")
     public ResponseEntity<ApiResponse<String>> likePost(@PathVariable UUID postId, Authentication authentication) {
         postingService.toggleLike(UUID.fromString(authentication.getName()), postId);
         return ok("Liked/Unliked!");
     }
 
+    @GetMapping("/{postId}/like")
+    public ResponseEntity<ApiResponse<Boolean>> likedPost(@PathVariable UUID postId, Authentication authentication) {
+        return ok(postingService.likedPost(UUID.fromString(authentication.getName()), postId));
+    }
+
     @PostMapping("/{postId}/view")
     public ResponseEntity<ApiResponse<String>> viewPost(@PathVariable UUID postId, Authentication authentication) {
         postingService.markAsViewed(UUID.fromString(authentication.getName()), postId);
         return ok("View!");
+    }
+
+    // GET CURRENT POSTS BY RECRUITER
+
+    @GetMapping("/recruiter/{id}/recent")
+    public ResponseEntity<ApiResponse<List<JobPostingResponse>>> getRecentPost(@PathVariable UUID id){
+        return ok(postingService.getRecentPosts(id));
     }
 
 

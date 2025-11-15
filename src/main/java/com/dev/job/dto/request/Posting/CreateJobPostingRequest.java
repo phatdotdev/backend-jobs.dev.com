@@ -26,6 +26,9 @@ public class CreateJobPostingRequest {
     @NotBlank(message = "Experience requirement must not be blank.")
     String experience;
 
+    @NotBlank(message = "Required documents must not be blank.")
+    String requiredDocuments;
+
     @NotNull(message = "Minimum salary must not be null.")
     @DecimalMin(value = "0.0", inclusive = false, message = "Minimum salary must be greater than 0.")
     BigDecimal minSalary;

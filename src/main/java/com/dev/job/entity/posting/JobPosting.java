@@ -1,6 +1,7 @@
 package com.dev.job.entity.posting;
 
 import com.dev.job.entity.application.Application;
+import com.dev.job.entity.resource.Document;
 import com.dev.job.entity.resource.Image;
 import com.dev.job.entity.resource.Location;
 import com.dev.job.entity.user.Recruiter;
@@ -37,6 +38,7 @@ public class JobPosting {
 
     JobType type;
     String experience;
+    String requiredDocuments;
 
     @Lob
     String description;
@@ -46,6 +48,7 @@ public class JobPosting {
 
     @Lob
     String benefits;
+
 
 
     @Transient
@@ -73,6 +76,10 @@ public class JobPosting {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "job_id")
     List<Image> images;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "job_id")
+    List<Document> documents;
 
     @OneToMany(mappedBy = "jobPosting", cascade = CascadeType.REMOVE, orphanRemoval = true)
     List<Application> applications = new ArrayList<>();

@@ -27,6 +27,7 @@ public class UpdateJobPostingRequest {
     JobType type;
 
     String experience;
+    String requiredDocuments;
 
     @DecimalMin(value = "0.0", inclusive = false, message = "Minimum salary must be greater than 0.")
     BigDecimal minSalary;
@@ -47,4 +48,5 @@ public class UpdateJobPostingRequest {
     PostState state;
 
     List<String> imagesToRetain;
+    List<String> documentsToRetain;
 }

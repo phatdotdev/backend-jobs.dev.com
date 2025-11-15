@@ -1,8 +1,10 @@
 package com.dev.job.service;
 
+import com.dev.job.entity.resource.Document;
 import com.dev.job.entity.resource.Image;
 import com.dev.job.entity.user.User;
 import com.dev.job.exceptions.BadRequestException;
+import com.dev.job.repository.Resource.DocumentRepository;
 import com.dev.job.repository.Resource.ImageRepository;
 import com.dev.job.repository.User.UserRepository;
 import jakarta.transaction.Transactional;
@@ -20,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -33,6 +36,7 @@ public class UploadService {
 
     final UserRepository userRepository;
     final ImageRepository imageRepository;
+    final DocumentRepository documentRepository;
 
     @NonFinal
     @Value("${file.upload-dir}")
@@ -144,6 +148,58 @@ public class UploadService {
 
         return images;
     }
+
+    @Transactional
+    public List<Document> uploadDocuments(List<MultipartFile> files, String type, UUID resourceId) throws IOException {
+        if(files == null || files.isEmpty()){
+            return new ArrayList<>();
+        }
+        String folder = uploadDir;
+        String sub = type + "/" + resourceId;
+
+        List<Document> documents = new ArrayList<>();
+
+        for (MultipartFile file : files) {
+            if (!file.isEmpty()) {
+                Document document = saveDocument(file, folder, sub);
+                documents.add(document);
+            }
+        }
+
+        return documents;
+    }
+
+    private Document saveDocument(MultipartFile file, String folder, String sub){
+        String originalFileName = file.getOriginalFilename();
+        if (originalFileName == null || originalFileName.isEmpty()) {
+            throw new BadRequestException("Invalid file name.");
+        }
+        String extension = FilenameUtils.getExtension(originalFileName);
+        String fileName = UUID.randomUUID().toString() + "." + extension;
+
+        Path uploadPath = Paths.get(folder, sub).toAbsolutePath().normalize();
+
+        try {
+            Files.createDirectories(uploadPath);
+            Path targetPath = uploadPath.resolve(fileName);
+            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+            Document document = new Document();
+            document.setOriginalName(originalFileName);
+            document.setFileName(sub + "/" + fileName);
+            document.setFilePath(targetPath.toString());
+            document.setFileType(file.getContentType());
+            document.setSize(file.getSize());
+            document.setUploadedAt(LocalDateTime.now());
+
+            return document;
+        } catch (IOException e) {
+            throw new BadRequestException("Cannot create upload folder at: " + uploadPath);
+        }
+
+
+    }
+
 
     public void deleteImages(List<Image> images) {
         System.out.println("Delete files.");

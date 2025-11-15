@@ -285,4 +285,25 @@ public class UserController {
         UUID id = UUID.fromString(authentication.getName());
         return ok(userService.updateRecruiterProfile(request, id));
     }
+
+    @PreAuthorize("hasRole('EXPERT')")
+    @GetMapping("/expert/profile")
+    public ResponseEntity<ApiResponse<ExpertResponse>> getExpertProfile(Authentication authentication) {
+        UUID id = UUID.fromString(authentication.getName());
+        return ok(userService.getExpertProfile(id));
+    }
+
+    @PreAuthorize("hasRole('EXPERT')")
+    @PutMapping("/expert/profile")
+    public ResponseEntity<ApiResponse<ExpertResponse>> updateExpertProfile(Authentication authentication,
+                                                                                 @RequestBody UpdateExpertRequest request) {
+        UUID id = UUID.fromString(authentication.getName());
+        return ok(userService.updateExpertProfile(request, id));
+    }
+
+    // GET USERS BY ID
+    @GetMapping("/recruiter/{id}")
+    ResponseEntity<ApiResponse<RecruiterResponse>> getRecruiterById(@PathVariable UUID id){
+        return ok(userService.getRecruiterById(id));
+    }
 }

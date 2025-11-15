@@ -20,4 +20,6 @@ import java.util.List;
 public class Expert extends User {
     @OneToMany(mappedBy = "expert", cascade = CascadeType.ALL, orphanRemoval = true)
     List<Expertise> expertises;
+
+    String phone;
 }

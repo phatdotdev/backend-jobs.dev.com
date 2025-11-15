@@ -2,11 +2,14 @@ package com.dev.job.entity.application;
 
 import com.dev.job.entity.communication.Notification;
 import com.dev.job.entity.posting.JobPosting;
+import com.dev.job.entity.resource.Document;
 import com.dev.job.entity.resume.Resume;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -15,7 +18,10 @@ import java.util.UUID;
 
 @Entity
 @Table(
-        name = "application"
+        name = "application",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"resume_id", "post_id"})
+        }
 )
 @Data
 @Builder
@@ -28,15 +34,27 @@ public class Application {
     UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "post_id", foreignKey = @ForeignKey(name = "fk_application_post", foreignKeyDefinition = "FOREIGN KEY (post_id) REFERENCES job_posting(id) ON DELETE CASCADE"))
+    @JoinColumn(
+            name = "post_id",
+            foreignKey = @ForeignKey(name = "fk_application_post")
+    )
+    @OnDelete(action = OnDeleteAction.CASCADE)
     JobPosting jobPosting;
 
     @ManyToOne
-    @JoinColumn(name = "resume_id", foreignKey = @ForeignKey(name = "fk_application_resume", foreignKeyDefinition = "FOREIGN KEY (resume_id) REFERENCES resume(id) ON DELETE CASCADE"))
+    @JoinColumn(
+            name = "resume_id",
+            foreignKey = @ForeignKey(name = "fk_application_resume")
+    )
+    @OnDelete(action = OnDeleteAction.CASCADE)
     Resume resume;
 
     @Enumerated(EnumType.STRING)
     ApplicationState state;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "application_id")
+    List<Document> documents = new ArrayList<>();
 
     @Column(name = "applied_at")
     LocalDateTime appliedAt;
@@ -45,6 +63,6 @@ public class Application {
 
     @JsonIgnore
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Notification> notifications = new ArrayList<>();
+    List<Notification> notifications = new ArrayList<>();
 
 }

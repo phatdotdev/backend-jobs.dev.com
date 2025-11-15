@@ -190,12 +190,13 @@ public class UserService {
         }
 
         Page<Recruiter> recruiterPage = recruiterRepository.findAll(spec, pageable);
-        return recruiterPage.map(userMapper::recruiterToResponse);
+
+        return recruiterPage.map(this::recruiterToResponse);
     }
 
     public RecruiterResponse getRecruiterById(UUID id){
         return recruiterRepository.findById(id)
-                .map(userMapper::recruiterToResponse)
+                .map(this::recruiterToResponse)
                 .orElseThrow(() -> new BadRequestException("Recruiter not found."));
     }
 
@@ -293,6 +294,16 @@ public class UserService {
         return userMapper.recruiterToResponse(recruiterRepository.save(recruiter));
     }
 
+    public ExpertResponse getExpertProfile(UUID id){
+        Expert expert = expertRepository
+                .findById(id)
+                .orElseThrow(() -> new BadRequestException("Expert not found."));
+        ExpertResponse response = userMapper.expertToResponse(expert);
+        response.setAvatarUrl(expert.getAvatar() != null ? expert.getAvatar().getFileName() : "");
+        response.setCoverUrl(expert.getCover() != null ? expert.getCover().getFileName() : "");
+        return response;
+    }
+
     public ExpertResponse updateExpertProfile(UpdateExpertRequest request, UUID id) {
         Expert expert = expertRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Expert not found."));
@@ -332,6 +343,13 @@ public class UserService {
         UserResponse response = userMapper.toResponse(user);
         response.setAvatarUrl(user.getAvatar() != null ? user.getAvatar().getFileName(): "");
         response.setCoverUrl(user.getCover() != null ? user.getCover().getFileName() : "");
+        return response;
+    }
+
+    private  RecruiterResponse recruiterToResponse(Recruiter recruiter){
+        RecruiterResponse response = userMapper.recruiterToResponse(recruiter);
+        response.setAvatarUrl(recruiter.getAvatar() != null ? recruiter.getAvatar().getFileName() : "avatars/default-recruiter-avatar.png");
+        response.setCoverUrl(recruiter.getCover() != null ? recruiter.getCover().getFileName() : "");
         return response;
     }
 

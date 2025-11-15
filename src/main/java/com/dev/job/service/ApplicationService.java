@@ -1,6 +1,5 @@
 package com.dev.job.service;
 
-import com.dev.job.dto.request.Application.CreateApplicationRequest;
 import com.dev.job.dto.request.Application.UpdateApplicationStateRequest;
 import com.dev.job.dto.response.Application.ApplicationResponse;
 import com.dev.job.dto.response.Posting.JobPostingResponse;
@@ -11,6 +10,7 @@ import com.dev.job.entity.communication.Notification;
 import com.dev.job.entity.communication.NotificationType;
 import com.dev.job.entity.posting.JobPosting;
 import com.dev.job.entity.posting.PostState;
+import com.dev.job.entity.resource.Document;
 import com.dev.job.entity.resume.Resume;
 import com.dev.job.entity.user.JobSeeker;
 import com.dev.job.exceptions.BadRequestException;
@@ -20,15 +20,21 @@ import com.dev.job.repository.Application.ApplicationRepository;
 import com.dev.job.repository.Posting.JobPostingRepository;
 import com.dev.job.repository.Resume.ResumeRepository;
 import com.dev.job.repository.User.JobSeekerRepository;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -45,19 +51,24 @@ public class ApplicationService {
     ResumeService resumeService;
     PostingService postingService;
     NotificationService notificationService;
+    UploadService uploadService;
 
     public Page<ApplicationResponse> getAllApplication(int page, int size){
         Pageable pageable = PageRequest.of(page, size);
         return applicationRepository.findAll(pageable).map(this::toApplicationResponse);
     }
 
-    public ApplicationResponse applyJob(CreateApplicationRequest request, UUID jsId){
+    @Transactional
+    public ApplicationResponse applyJob(UUID postId, UUID resumeId, List<MultipartFile> files, UUID jsId) throws IOException {
         JobSeeker jobSeeker = getJobSeeker(jsId);
-        Resume resume = getResume(request.getResumeId());
+        Resume resume = getResume(resumeId);
+        if(applicationRepository.existsByJobPostingIdAndResumeId(postId, resumeId)){
+            throw new BadRequestException("Can not create application.");
+        }
         if(!resume.getJobSeeker().getId().equals(jobSeeker.getId())){
             throw new UnauthorizedException("You do not have permission with this resume");
         }
-        JobPosting post = getJobPosting(request.getPostId());
+        JobPosting post = getJobPosting(postId);
         if(!post.getState().equals(PostState.PUBLISHED)){
             throw new BadRequestException("Post is not published.");
         }
@@ -67,8 +78,11 @@ public class ApplicationService {
                 .jobPosting(post)
                 .appliedAt(LocalDateTime.now())
                 .build();
-
-        return toApplicationResponse(applicationRepository.save(application));
+        applicationRepository.save(application);
+        List<Document> documents = uploadService.uploadDocuments(files, "documents/applications" , application.getId());
+        application.setDocuments(documents);
+        applicationRepository.save(application);
+        return toApplicationResponse(application);
     }
 
     public ApplicationResponse searchApply(UUID postId, UUID jsId){
@@ -81,6 +95,15 @@ public class ApplicationService {
         Pageable pageable = PageRequest.of(page, size);
         return applicationRepository.findByResume_JobSeeker_Id(jsId, pageable)
                 .map(this::toApplicationResponse);
+    }
+
+    public ApplicationResponse getApplicationById(UUID id, UUID jsId){
+        Application application = applicationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found."));
+        if(!application.getResume().getJobSeeker().getId().equals(jsId)){
+            throw new UnauthorizedException("You do not have permission.");
+        }
+        return toApplicationResponse(application);
     }
 
     public Page<ApplicationResponse> getJobPostingApplication(UUID postId, ApplicationState state, int page, int size) {
@@ -127,6 +150,20 @@ public class ApplicationService {
         return toApplicationResponse(application);
     }
 
+    @Transactional
+    public ApplicationResponse updateDocuments(UUID id, List<MultipartFile> files, UUID userId) throws IOException {
+        Application application = applicationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found."));
+        if(!application.getResume().getJobSeeker().getId().equals(userId)){
+            throw  new UnauthorizedException("You do not have permission");
+        }
+        List<Document> documents = uploadService.uploadDocuments(files, "documents/applications", id);
+        application.getDocuments().addAll(documents);
+        application.setState(ApplicationState.SUBMITTED);
+        applicationRepository.save(application);
+        return toApplicationResponse(application);
+    }
+
     // PRIVATE METHOD
 
     private JobSeeker getJobSeeker(UUID jsId){
@@ -151,6 +188,8 @@ public class ApplicationService {
                 .id(application.getId())
                 .resume(resumeResponse)
                 .post(postingResponse)
+                .notifications(application.getNotifications())
+                .documents(application.getDocuments())
                 .state(application.getState())
                 .appliedAt(application.getAppliedAt())
                 .updatedAt(application.getUpdatedAt())

@@ -13,4 +13,5 @@ import java.util.UUID;
 public interface JobPostingRepository extends JpaRepository<JobPosting, UUID>, JpaSpecificationExecutor<JobPosting> {
     List<JobPosting> findByRecruiterId(UUID rId);
     Page<JobPosting> findByRecruiterId(UUID rId, Pageable pageable);
+    List<JobPosting> findTop10ByRecruiterIdOrderByCreatedAtDesc(UUID recruiterId);
 }
