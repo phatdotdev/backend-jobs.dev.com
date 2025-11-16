@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,4 +15,5 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, UUID>, J
     List<JobPosting> findByRecruiterId(UUID rId);
     Page<JobPosting> findByRecruiterId(UUID rId, Pageable pageable);
     List<JobPosting> findTop10ByRecruiterIdOrderByCreatedAtDesc(UUID recruiterId);
+    Long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 }

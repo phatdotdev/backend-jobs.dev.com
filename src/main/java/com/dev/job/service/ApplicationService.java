@@ -4,6 +4,7 @@ import com.dev.job.dto.request.Application.UpdateApplicationStateRequest;
 import com.dev.job.dto.response.Application.ApplicationResponse;
 import com.dev.job.dto.response.Posting.JobPostingResponse;
 import com.dev.job.dto.response.Resume.ResumeResponse;
+import com.dev.job.dto.response.User.JobSeekerResponse;
 import com.dev.job.entity.application.Application;
 import com.dev.job.entity.application.ApplicationState;
 import com.dev.job.entity.communication.Notification;
@@ -50,6 +51,7 @@ public class ApplicationService {
 
     ResumeService resumeService;
     PostingService postingService;
+    UserService userService;
     NotificationService notificationService;
     UploadService uploadService;
 
@@ -164,6 +166,14 @@ public class ApplicationService {
         return toApplicationResponse(application);
     }
 
+    // GET JS BY APPLICATION ID
+    public JobSeekerResponse getJobSeekerByApplicationId(UUID id) {
+        Application application = applicationRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Application not found."));
+        UUID jsId = application.getResume().getJobSeeker().getId();
+        return userService.getJobSeekerById(jsId);
+    }
+
     // PRIVATE METHOD
 
     private JobSeeker getJobSeeker(UUID jsId){
@@ -195,4 +205,6 @@ public class ApplicationService {
                 .updatedAt(application.getUpdatedAt())
                 .build();
     }
+
+
 }

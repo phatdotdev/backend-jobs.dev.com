@@ -6,6 +6,7 @@ import static com.dev.job.utils.ResponseHelper.ok;
 
 import com.dev.job.dto.request.Application.UpdateApplicationStateRequest;
 import com.dev.job.dto.response.Application.ApplicationResponse;
+import com.dev.job.dto.response.User.JobSeekerResponse;
 import com.dev.job.entity.application.ApplicationState;
 import com.dev.job.service.ApplicationService;
 import lombok.AccessLevel;
@@ -94,6 +95,12 @@ public class ApplicationController {
                                                                             Authentication authentication) throws IOException {
         UUID userId = UUID.fromString(authentication.getName());
         return ok(applicationService.updateDocuments(id, files, userId));
+    }
+
+    // GET JOBSEEKER BY APPLICANT ID
+    @GetMapping("/{id}/job-seeker")
+    public ResponseEntity<ApiResponse<JobSeekerResponse>> getJobSeekerByApplicantId(@PathVariable UUID id){
+        return ok(applicationService.getJobSeekerByApplicationId(id));
     }
 
 }

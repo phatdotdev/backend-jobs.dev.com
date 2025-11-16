@@ -1,11 +1,13 @@
 package com.dev.job.repository.User;
 
 import com.dev.job.entity.user.User;
+import com.dev.job.entity.user.UserStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,4 +16,8 @@ public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificat
     boolean existsByEmail(String email);
     Optional<User> findByEmail(String email);
     Optional<User> findByEmailOrUsername(String email, String username);
+
+    // Statistics
+    Long countByStatus(UserStatus status);
+    Long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 }

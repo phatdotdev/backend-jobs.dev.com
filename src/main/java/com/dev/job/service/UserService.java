@@ -194,6 +194,14 @@ public class UserService {
         return recruiterPage.map(this::recruiterToResponse);
     }
 
+    // GET USERS BY ID
+
+    public JobSeekerResponse getJobSeekerById(UUID id){
+        return jobSeekerRepository.findById(id)
+                .map(this::jobSeekerToResponse)
+                .orElseThrow(() -> new BadRequestException("Job seeker not found."));
+    }
+
     public RecruiterResponse getRecruiterById(UUID id){
         return recruiterRepository.findById(id)
                 .map(this::recruiterToResponse)
@@ -343,6 +351,13 @@ public class UserService {
         UserResponse response = userMapper.toResponse(user);
         response.setAvatarUrl(user.getAvatar() != null ? user.getAvatar().getFileName(): "");
         response.setCoverUrl(user.getCover() != null ? user.getCover().getFileName() : "");
+        return response;
+    }
+
+    private JobSeekerResponse jobSeekerToResponse(JobSeeker jobSeeker){
+        JobSeekerResponse response = userMapper.jobSeekerToResponse(jobSeeker);
+        response.setAvatarUrl(jobSeeker.getAvatar() != null ? jobSeeker.getAvatar().getFileName() : "avatars/default-jobseeker-avatar.png");
+        response.setCoverUrl(jobSeeker.getCover() != null ? jobSeeker.getCover().getFileName() : "");
         return response;
     }
 

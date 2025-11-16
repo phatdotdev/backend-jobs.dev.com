@@ -302,6 +302,11 @@ public class UserController {
     }
 
     // GET USERS BY ID
+    @GetMapping("/job-seeker/{id}")
+    ResponseEntity<ApiResponse<JobSeekerResponse>> getJobSeekerById(@PathVariable UUID id){
+        return ok(userService.getJobSeekerById(id));
+    }
+
     @GetMapping("/recruiter/{id}")
     ResponseEntity<ApiResponse<RecruiterResponse>> getRecruiterById(@PathVariable UUID id){
         return ok(userService.getRecruiterById(id));
