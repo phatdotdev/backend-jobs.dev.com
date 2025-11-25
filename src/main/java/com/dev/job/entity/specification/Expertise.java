@@ -16,6 +16,7 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Expertise {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     UUID id;
     String title;
     String field;

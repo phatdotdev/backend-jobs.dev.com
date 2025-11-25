@@ -1,4 +1,4 @@
-package com.dev.job.entity.statistics;
+package com.dev.job.dto.response.statistics;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

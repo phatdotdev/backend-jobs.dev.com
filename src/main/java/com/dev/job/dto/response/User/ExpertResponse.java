@@ -24,6 +24,7 @@ public class ExpertResponse{
     String username;
     String email;
     String phone;
+    String status;
     List<ExpertiseResponse> expertises;
     String avatarUrl;
     String coverUrl;

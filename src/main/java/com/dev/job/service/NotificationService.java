@@ -1,5 +1,6 @@
 package com.dev.job.service;
 
+import com.dev.job.dto.response.Communication.NotificationResponse;
 import com.dev.job.entity.communication.Notification;
 import com.dev.job.entity.communication.NotificationType;
 import com.dev.job.exceptions.BadRequestException;
@@ -12,7 +13,6 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -29,7 +29,8 @@ public class NotificationService {
         notification.setSenderId(userId);
         notification.setTimestamp(LocalDateTime.now());
         notificationRepository.save(notification);
-        messagingTemplate.convertAndSendToUser(notification.getRecipientId().toString(), "/queue/notifications", notification);
+
+        messagingTemplate.convertAndSendToUser(notification.getRecipientId().toString(), "/queue/notifications", this.notificationToResponse(notification));
         System.out.println("Sent notification to user: " + notification.getRecipientId() + " Type: " + notification.getType());
     }
 
@@ -51,8 +52,9 @@ public class NotificationService {
         }
     }
 
-    public List<Notification> getAllMyNotifications(UUID id){
-        return notificationRepository.findByRecipientId(id);
+    public List<NotificationResponse> getAllMyNotifications(UUID id){
+        return notificationRepository.findByRecipientId(id)
+                .stream().map(this::notificationToResponse).toList();
     }
 
     @Transactional
@@ -70,14 +72,41 @@ public class NotificationService {
 
     // PRIVATE METHOD
 
+    public NotificationResponse notificationToResponse(Notification notification){
+        return NotificationResponse
+                .builder()
+                .id(notification.getId())
+                .senderId(notification.getSenderId())
+                .recipientId(notification.getRecipientId())
+                .title(notification.getTitle())
+                .content(notification.getContent())
+                .isRead(notification.isRead())
+                .timestamp(notification.getTimestamp())
+                .type(notification.getType().toString())
+                .applicationId(notification.getApplication() != null ? notification.getApplication().getId() : null)
+                .requestId(notification.getFeedbackRequest() != null ? notification.getFeedbackRequest().getId() : null)
+                .postId(notification.getJobPosting() != null ? notification.getJobPosting().getId() : null)
+                .objectTitle(resolveObjectTitle(notification))
+                .build();
+    }
+
+    private String resolveObjectTitle(Notification notification) {
+        if (notification.getApplication() != null) {
+            return notification.getApplication().getJobPosting().getTitle();
+        } else if (notification.getFeedbackRequest() != null) {
+            return notification.getFeedbackRequest().getResume().getTitle();
+        } else if (notification.getJobPosting() != null) {
+            return notification.getJobPosting().getTitle();
+        }
+        return null;
+    }
+
+
     public static String getMessageTemplate(NotificationType type) {
         return switch (type) {
-            case NEW_JOB_POSTING -> "Có bài đăng mới vừa được tạo.";
-            case APPLICATION_RECEIVED -> "Bạn vừa nhận được một đơn ứng tuyển.";
             case APPLICATION_STATUS_CHANGED -> "Trạng thái đơn ứng tuyển đã thay đổi.";
-            case INTERVIEW_SCHEDULED -> "Lịch phỏng vấn đã được lên.";
-            case INTERVIEW_RESULT -> "Kết quả phỏng vấn đã có.";
-            case JOB_OFFER -> "Bạn vừa nhận được một thư mời nhận việc.";
+            case APPLICATION_ACTIVITY -> "Có hoạt động trên bài tuyển dụng của bạn.";
+            case REVIEW_RECEIVED -> "Kết quả đánh giá hồ sơ đã có.";
             case SYSTEM_ANNOUNCEMENT -> "Thông báo từ hệ thống.";
         };
     }

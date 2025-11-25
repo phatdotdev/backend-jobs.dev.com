@@ -4,6 +4,8 @@ import com.dev.job.dto.request.review.CreateFeedbackRequest;
 import com.dev.job.dto.request.review.CreateFeedbackReview;
 import com.dev.job.dto.response.review.FeedbackRequestResponse;
 import com.dev.job.dto.response.review.FeedbackReviewResponse;
+import com.dev.job.entity.communication.Notification;
+import com.dev.job.entity.communication.NotificationType;
 import com.dev.job.entity.resume.Resume;
 import com.dev.job.entity.review.FeedbackRequest;
 import com.dev.job.entity.review.FeedbackReview;
@@ -18,6 +20,7 @@ import com.dev.job.repository.User.ExpertRepository;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.aspectj.weaver.ast.Not;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +42,8 @@ public class ReviewService {
     ResumeRepository resumeRepository;
     FeedbackRequestRepository feedbackRequestRepository;
     FeedbackReviewRepository feedbackReviewRepository;
+
+    NotificationService notificationService;
 
     // CREATE REQUEST FOR RESUME
     public FeedbackRequestResponse createRequest(CreateFeedbackRequest dto, UUID userId) {
@@ -99,6 +104,18 @@ public class ReviewService {
 
         markRequestAsDone(request);
 
+        notificationService.sendUserNotification(
+                Notification.builder()
+                        .recipientId(request.getResume().getJobSeeker().getId())
+                        .title("Ứng nhận đánh giá!")
+                        .feedbackRequest(request)
+                        .type(NotificationType.REVIEW_RECEIVED)
+                        .content("Đã có đánh giá cho hồ sơ của bạn.")
+                        .isRead(false)
+                        .timestamp(LocalDateTime.now())
+                        .build(), expertId
+        );
+
         return mapToReviewResponse(review);
     }
 
@@ -153,6 +170,7 @@ public class ReviewService {
                 .id(review.getId())
                 .feedbackRequestId(review.getFeedbackRequest().getId())
                 .expertId(review.getExpert().getId())
+                .reviewerName(review.getExpert().getUsername())
                 .score(review.getScore())
                 .overallComment(review.getOverallComment())
                 .experienceComment(review.getExperienceComment())

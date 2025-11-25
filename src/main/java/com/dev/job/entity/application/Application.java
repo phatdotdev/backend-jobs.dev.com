@@ -58,6 +58,16 @@ public class Application {
 
     @Column(name = "applied_at")
     LocalDateTime appliedAt;
+
+    @Column(name = "accepted_at")
+    LocalDateTime acceptedAt;
+
+    @Column(name = "hired_at")
+    LocalDateTime hiredAt;
+
+    @Column(name = "rejected_at")
+    LocalDateTime rejectedAt;
+
     @Column(name="updated_at")
     LocalDateTime updatedAt;
 

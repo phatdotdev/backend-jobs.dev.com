@@ -6,6 +6,7 @@ import static com.dev.job.utils.ResponseHelper.ok;
 
 import com.dev.job.dto.request.Application.UpdateApplicationStateRequest;
 import com.dev.job.dto.response.Application.ApplicationResponse;
+import com.dev.job.dto.response.Resume.ResumeResponse;
 import com.dev.job.dto.response.User.JobSeekerResponse;
 import com.dev.job.entity.application.ApplicationState;
 import com.dev.job.service.ApplicationService;
@@ -81,6 +82,7 @@ public class ApplicationController {
         return ok(applicationService.getAllApplication(page, size));
     }
 
+    // UPDATE APPLICATION STATUS
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ApplicationResponse>> updateApplicationStatus(@PathVariable UUID id,
                                                                                     @RequestBody UpdateApplicationStateRequest request,
@@ -101,6 +103,11 @@ public class ApplicationController {
     @GetMapping("/{id}/job-seeker")
     public ResponseEntity<ApiResponse<JobSeekerResponse>> getJobSeekerByApplicantId(@PathVariable UUID id){
         return ok(applicationService.getJobSeekerByApplicationId(id));
+    }
+
+    @GetMapping("/{id}/resume")
+    public ResponseEntity<ApiResponse<ResumeResponse>> getResumeByApplicantId(@PathVariable UUID id){
+        return ok(applicationService.getResumeByApplicationId(id));
     }
 
 }

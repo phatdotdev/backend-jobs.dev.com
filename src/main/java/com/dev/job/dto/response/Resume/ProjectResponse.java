@@ -16,6 +16,7 @@ public class ProjectResponse {
     String description;
     String role;
     String result;
+    String projectUrl;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 }

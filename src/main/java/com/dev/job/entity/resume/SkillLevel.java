@@ -2,7 +2,7 @@ package com.dev.job.entity.resume;
 
 public enum SkillLevel {
     BEGINNER,
-    INTERMEDIDATE,
+    INTERMEDIATE,
     ADVANCED,
     EXPERT
 }

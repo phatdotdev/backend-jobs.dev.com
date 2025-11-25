@@ -37,6 +37,9 @@ public class Resume {
     List<WorkExperience> experiences;
 
     @ManyToMany
+    List<Project> projects;
+
+    @ManyToMany
     List<Certification> certifications;
 
     @ManyToMany

@@ -20,7 +20,6 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@PreAuthorize("hasRole('JOBSEEKER')")
 @RequestMapping("/")
 public class ResumeController {
 
@@ -70,7 +69,7 @@ public class ResumeController {
         return ResponseEntity.ok(
                 ApiResponse.<ResumeResponse>builder()
                         .success(true)
-                        .message("Create resume successfully.")
+                        .message("Update resume successfully.")
                         .data(resumeService.updateResume(request, rId, jsId))
                         .build()
         );
@@ -411,5 +410,18 @@ public class ResumeController {
                         .build()
         );
     }
+
+    // PUBLIC ROUTE
+
+    @GetMapping("/job-seeker/{id}/educations")
+    public ResponseEntity<ApiResponse<List<EducationResponse>>> getEducationsByJobSeekerId(@PathVariable UUID id){
+        return ok(resumeService.getAllEducations(id));
+    }
+
+    @GetMapping("/job-seeker/{id}/experiences")
+    public ResponseEntity<ApiResponse<List<ExperienceResponse>>> getExperiencesByJobSeekerId(@PathVariable UUID id){
+        return ok(resumeService.getAllExperiences(id));
+    }
+
 
 }

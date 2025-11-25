@@ -13,6 +13,14 @@ public class ExpertSpecification {
         return (root, query, cb) -> cb.like(cb.lower(root.get("email")), "%" + email.toLowerCase() + "%");
     }
 
+    public static Specification<Expert> hasPhone(String phone) {
+        return (root, query, cb) -> cb.like(
+                cb.lower(root.get("phone")),
+                "%" + phone.toLowerCase() + "%"
+        );
+    }
+
+
     public static Specification<Expert> hasStatus(String status) {
         return (root, query, cb) -> cb.equal(root.get("status"), status);
     }

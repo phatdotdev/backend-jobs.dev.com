@@ -79,7 +79,7 @@ public class PostingController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping
+    @GetMapping("/admin")
     public ResponseEntity<ApiResponse<Page<JobPostingResponse>>> getAllJobPostings(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) BigDecimal minSalary,
@@ -99,7 +99,7 @@ public class PostingController {
     // GET MY POSTS
     @GetMapping("/mine")
     @PreAuthorize("hasRole('RECRUITER')")
-    public ResponseEntity<ApiResponse<Page<JobPostingResponse>>> getMineJobPostings(
+    public ResponseEntity<ApiResponse<Page<JobPostingResponse>>> getMyJobPostings(
             Authentication authentication,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -108,6 +108,55 @@ public class PostingController {
         return ok(postings);
     }
 
+    @GetMapping("/mine/draft")
+    public ResponseEntity<ApiResponse<Page<JobPostingResponse>>> getMyDraftJobPosting(
+            Authentication authentication,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        return ok(
+                postingService
+                        .getMyJobPostingByState(UUID.fromString(authentication.getName()), PostState.DRAFT, page, size)
+        );
+    }
+
+    @GetMapping("/mine/published")
+    public ResponseEntity<ApiResponse<Page<JobPostingResponse>>> getMyPublishedJobPosting(
+            Authentication authentication,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        return ok(
+                postingService
+                        .getMyJobPostingByState(UUID.fromString(authentication.getName()), PostState.PUBLISHED, page, size)
+        );
+    }
+
+    @GetMapping("/mine/closed")
+    public ResponseEntity<ApiResponse<Page<JobPostingResponse>>> getMyClosedJobPosting(
+            Authentication authentication,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        return ok(
+                postingService
+                        .getMyJobPostingByState(UUID.fromString(authentication.getName()), PostState.CLOSED, page, size)
+        );
+    }
+
+    @GetMapping("/mine/completed")
+    public ResponseEntity<ApiResponse<Page<JobPostingResponse>>> getMyCompletedJobPosting(
+            Authentication authentication,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        return ok(
+                postingService
+                        .getMyJobPostingByState(UUID.fromString(authentication.getName()), PostState.COMPLETED, page, size)
+        );
+    }
+
+    /* UPDATE STATE */
 
     @PutMapping("/{postingId}/state")
     public ResponseEntity<ApiResponse<JobPostingResponse>> updateJobPostingState(Authentication authentication,
@@ -187,5 +236,18 @@ public class PostingController {
         return ok(postingService.getRecentPosts(id));
     }
 
+    // ADMIN POSTS
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<Page<JobPostingResponse>>> getJobPostingByFilter(
+            @RequestParam(required = false) String state,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String companyName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        return ok(postingService.getJobPostingByFilter(state, type, title, companyName, page, size));
+    }
 
 }

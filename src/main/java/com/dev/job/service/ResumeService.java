@@ -60,6 +60,9 @@ public class ResumeService {
                         request.getEducations() != null ? request.getEducations() : List.of()))
                 .experiences(experienceRepository.findAllById(
                         request.getExperiences() != null ? request.getExperiences() : List.of()))
+                .projects(projectRepository.findAllById(
+                        request.getProjects() != null ? request.getProjects() : List.of()
+                ))
                 .skills(skillRepository.findAllById(
                         request.getSkills() != null ? request.getSkills() : List.of()))
                 .certifications(certificationRepository.findAllById(
@@ -99,6 +102,7 @@ public class ResumeService {
         resume.setObjectCareer(request.getObjectCareer());
         resume.setEducations(educationRepository.findAllById(request.getEducations()));
         resume.setExperiences(experienceRepository.findAllById(request.getExperiences()));
+        resume.setProjects(projectRepository.findAllById(request.getProjects()));
         resume.setSkills(skillRepository.findAllById(request.getSkills()));
         resume.setAwards(awardRepository.findAllById(request.getAwards()));
         resume.setActivities(activityRepository.findAllById(request.getActivities()));
@@ -426,7 +430,17 @@ public class ResumeService {
     private ResumeResponse resumeToResponse(Resume resume) {
         return ResumeResponse.builder()
                 .id(resume.getId())
+                .email(resume.getJobSeeker().getEmail())
                 .title(resume.getTitle())
+                .avatarUrl(resume.getJobSeeker().getAvatar() != null
+                        ? resume.getJobSeeker().getAvatar().getFileName()
+                        : "avatars/default-job-seeker.png")
+                .firstname(resume.getJobSeeker().getFirstname())
+                .lastname(resume.getJobSeeker().getLastname())
+                .phone(resume.getJobSeeker().getPhone())
+                .address(resume.getJobSeeker().getAddress())
+                .dob(resume.getJobSeeker().getDob())
+                .gender(resume.getJobSeeker().getGender())
                 .introduction(resume.getIntroduction())
                 .objectCareer(resume.getObjectCareer())
                 .educations(resume.getEducations().stream()
@@ -446,6 +460,9 @@ public class ResumeService {
                         .toList())
                 .activities(resume.getActivities().stream()
                         .map(resumeMapper::toActivityResponse)
+                        .toList())
+                .projects(resume.getProjects().stream()
+                        .map(resumeMapper::toProjectResponse)
                         .toList())
                 .createdAt(resume.getCreatedAt())
                 .updatedAt(resume.getUpdatedAt())

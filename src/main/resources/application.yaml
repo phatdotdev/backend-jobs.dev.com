@@ -39,3 +39,8 @@ jwt:
     refresh-token: 604800000
 file:
   upload-dir: D:\assignments\CT250\job-backend\uploads
+gemini:
+  api-key: AIzaSyC4eyvqfeOewmLFsXdFx-cd8CCCc2AssIY
+recommendation:
+  service:
+    url: http://localhost:8000

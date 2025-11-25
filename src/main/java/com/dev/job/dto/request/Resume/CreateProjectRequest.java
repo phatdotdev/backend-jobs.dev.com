@@ -19,6 +19,8 @@ public class CreateProjectRequest {
     @Size(max = 1000, message = "Description must not exceed 1000 characters")
     String description;
 
+    String projectUrl;
+
     @NotBlank(message = "Role must not be blank")
     @Size(max = 255, message = "Role must not exceed 255 characters")
     String role;

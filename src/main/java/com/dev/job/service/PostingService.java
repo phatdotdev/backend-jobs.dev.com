@@ -2,7 +2,10 @@ package com.dev.job.service;
 
 import com.dev.job.dto.request.Posting.CreateJobPostingRequest;
 import com.dev.job.dto.request.Posting.UpdateJobPostingRequest;
+import com.dev.job.dto.response.Application.ApplicationResponse;
 import com.dev.job.dto.response.Posting.JobPostingResponse;
+import com.dev.job.dto.response.Resume.ResumeResponse;
+import com.dev.job.entity.application.Application;
 import com.dev.job.entity.posting.JobPosting;
 import com.dev.job.entity.posting.JobType;
 import com.dev.job.entity.posting.PostState;
@@ -54,6 +57,8 @@ public class PostingService {
     PostingMapper postingMapper;
     UploadService uploadService;
     LocationRepository locationRepository;
+
+    ResumeService resumeService;
 
     @Transactional
     public JobPostingResponse createJobPosting(CreateJobPostingRequest request,
@@ -118,6 +123,12 @@ public class PostingService {
                 .map(this::toJobResponse);
     }
 
+    public Page<JobPostingResponse> getMyJobPostingByState(UUID userId, PostState state, int page, int size){
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt", "expiredAt").descending());
+        return jobPostingRepository.findByRecruiterIdAndState(userId, state , pageable)
+                .map(this::toJobResponse);
+    }
+
     public JobPostingResponse getJobPosting(UUID pId) {
         return toJobResponse(jobPostingRepository.findById(pId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found.")));
@@ -132,8 +143,8 @@ public class PostingService {
             throw new UnauthorizedException("You do not have permission.");
         }
 
-        if (posting.getState() == PostState.ARCHIVED && state == PostState.PUBLISHED) {
-            throw new IllegalStateException("Unable to move from storage to active.");
+        if (posting.getState() == PostState.COMPLETED && state == PostState.PUBLISHED) {
+            throw new IllegalStateException("Unable to move from completed to active.");
         }
 
         posting.setState(state);
@@ -280,6 +291,35 @@ public class PostingService {
                 .stream().map(this::toJobResponse).toList();
     }
 
+    // ADMIN POSTS
+    public Page<JobPostingResponse> getJobPostingByFilter(String state, String type, String title, String companyName, int page, int size){
+        Specification<JobPosting> spec = (root, query, cb) -> cb.conjunction();
+
+        if (state != null && !state.isEmpty()) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("state"), PostState.valueOf(state)));
+        }
+
+        if (type != null && !type.isEmpty()) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("type"), JobType.valueOf(type)));
+        }
+
+        if (title != null && !title.isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.like(cb.lower(root.get("title")), "%" + title.toLowerCase() + "%"));
+        }
+
+        if (companyName != null && !companyName.isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.like(cb.lower(root.get("company").get("name")), "%" + companyName.toLowerCase() + "%"));
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        Page<JobPosting> postings = jobPostingRepository.findAll(spec, pageable);
+
+        return postings.map(this::toJobResponse);
+    }
+
 
     public JobPostingResponse toJobResponse(JobPosting job) {
         return JobPostingResponse.builder()
@@ -303,6 +343,9 @@ public class PostingService {
                                 ? job.getImages().stream().map(Image::getFileName).toList()
                                 : List.of()
                 )
+                .applications(job.getApplications() != null ?
+                        job.getApplications()
+                        .stream().map(this::toApplicationResponseNoPost).toList(): List.of())
                 .documents(
                         job.getDocuments()
                 )
@@ -312,6 +355,23 @@ public class PostingService {
                 )
                 .createdAt(job.getCreatedAt())
                 .expiredAt(job.getExpiredAt())
+                .build();
+    }
+
+    public ApplicationResponse toApplicationResponseNoPost(Application application) {
+        ResumeResponse resumeResponse = resumeService.getResume(application.getResume().getId());
+        return ApplicationResponse.builder()
+                .id(application.getId())
+                .resume(resumeResponse)
+                .post(null)
+                .notifications(application.getNotifications())
+                .documents(application.getDocuments())
+                .state(application.getState())
+                .appliedAt(application.getAppliedAt())
+                .updatedAt(application.getUpdatedAt())
+                .acceptedAt(application.getAcceptedAt())
+                .hiredAt(application.getHiredAt())
+                .rejectedAt(application.getRejectedAt())
                 .build();
     }
 

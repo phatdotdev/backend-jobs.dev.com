@@ -1,6 +1,8 @@
 package com.dev.job.entity.communication;
 
 import com.dev.job.entity.application.Application;
+import com.dev.job.entity.posting.JobPosting;
+import com.dev.job.entity.review.FeedbackRequest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -29,6 +31,7 @@ public class Notification {
     String title;
     String content;
 
+
     @JsonProperty("isRead")
     boolean isRead;
     LocalDateTime timestamp;
@@ -37,4 +40,14 @@ public class Notification {
     @ManyToOne
     @JoinColumn(name = "application_id", nullable = true)
     private Application application;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "post_id", nullable = true)
+    private JobPosting jobPosting;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "request_id", nullable = true)
+    FeedbackRequest feedbackRequest;
 }

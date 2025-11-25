@@ -29,5 +29,8 @@ public class ApplicationResponse {
     List<Document> documents;
     List<Notification> notifications;
     LocalDateTime appliedAt;
+    LocalDateTime rejectedAt;
+    LocalDateTime acceptedAt;
+    LocalDateTime hiredAt;
     LocalDateTime updatedAt;
 }

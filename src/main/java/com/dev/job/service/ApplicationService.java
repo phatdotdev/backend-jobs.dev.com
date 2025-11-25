@@ -84,6 +84,19 @@ public class ApplicationService {
         List<Document> documents = uploadService.uploadDocuments(files, "documents/applications" , application.getId());
         application.setDocuments(documents);
         applicationRepository.save(application);
+
+        notificationService.sendUserNotification(
+                Notification.builder()
+                        .recipientId(application.getJobPosting().getRecruiter().getId())
+                        .title("Ứng viên nộp hồ sơ!")
+                        .jobPosting(application.getJobPosting())
+                        .type(NotificationType.APPLICATION_ACTIVITY)
+                        .content("Có ứng viên nộp hồ sơ ứng tuyển.")
+                        .isRead(false)
+                        .timestamp(LocalDateTime.now())
+                        .build(), jsId
+        );
+
         return toApplicationResponse(application);
     }
 
@@ -99,10 +112,11 @@ public class ApplicationService {
                 .map(this::toApplicationResponse);
     }
 
-    public ApplicationResponse getApplicationById(UUID id, UUID jsId){
+    public ApplicationResponse getApplicationById(UUID id, UUID userId){
         Application application = applicationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Application not found."));
-        if(!application.getResume().getJobSeeker().getId().equals(jsId)){
+        if(!application.getResume().getJobSeeker().getId().equals(userId)
+                && !application.getJobPosting().getRecruiter().getId().equals(userId)){
             throw new UnauthorizedException("You do not have permission.");
         }
         return toApplicationResponse(application);
@@ -128,19 +142,55 @@ public class ApplicationService {
         if(!application.getJobPosting().getRecruiter().getId().equals(userId)){
             throw new UnauthorizedException("You do not have permission.");
         }
-//        if(application.getState().equals(ApplicationState.ACCEPTED) || application.getState().equals(ApplicationState.REJECTED)){
-//            throw new BadRequestException("Can not update application state.");
-//        }
-        if(request.getState().equals(ApplicationState.SUBMITTED)){
-            throw new BadRequestException("Can not update application state.");
+        if(application.getRejectedAt() != null || application.getHiredAt() != null){
+            throw new BadRequestException("Application has been finished.");
         }
-        application.setState(request.getState());
+        LocalDateTime now = LocalDateTime.now();
+        /* STAGE 1 - SUBMITTED */
+        if(application.getAcceptedAt() == null) {
+            if(request.getState() == ApplicationState.REVIEWING){
+                application.setState(ApplicationState.REVIEWING);
+            } else if(request.getState() == ApplicationState.REQUESTED){
+                application.setState(ApplicationState.REQUESTED);
+            } else if(request.getState() == ApplicationState.ACCEPTED){
+                application.setState(ApplicationState.ACCEPTED);
+                application.setAcceptedAt(now);
+            } else if(request.getState() == ApplicationState.REJECTED){
+                application.setState(ApplicationState.REJECTED);
+                application.setRejectedAt(now);
+            } else {
+                throw new BadRequestException("Invalid application state.");
+            }
+        }
+
+        /* STAGE 2 - ACCEPTED */
+        else if(application.getHiredAt() == null) {
+            if(request.getState() == ApplicationState.INTERVIEW){
+                application.setState(ApplicationState.INTERVIEW);
+            }else if(request.getState() == ApplicationState.REQUESTED){
+                application.setState(ApplicationState.REQUESTED);
+            }
+            else if(request.getState() == ApplicationState.HIRED){
+                application.setState(ApplicationState.HIRED);
+                application.setHiredAt(now);
+            } else if(request.getState() == ApplicationState.REJECTED){
+                application.setState(ApplicationState.REJECTED);
+                application.setRejectedAt(now);
+            } else {
+                throw new BadRequestException("Invalid application state.");
+            }
+        }
+        /* STAGE 3 - HIRED */
+        else {
+            throw new BadRequestException("Application has been hired.");
+        }
+        application.setUpdatedAt(now);
         applicationRepository.save(application);
 
         notificationService.sendUserNotification(
             Notification.builder()
                 .recipientId(application.getResume().getJobSeeker().getId())
-                .title("Trạng thái đơn ứng tuyển của bạn đã được cập nhật thành: " + request.getState().name())
+                .title("Trạng thái đơn ứng tuyển của bạn đã được cập nhật thành: " + toVietnamese(request.getState()))
                 .application(application)
                 .type(NotificationType.APPLICATION_STATUS_CHANGED)
                 .content(request.getContent())
@@ -163,6 +213,19 @@ public class ApplicationService {
         application.getDocuments().addAll(documents);
         application.setState(ApplicationState.SUBMITTED);
         applicationRepository.save(application);
+
+        notificationService.sendUserNotification(
+                Notification.builder()
+                    .recipientId(application.getJobPosting().getRecruiter().getId())
+                    .title("Bổ sung tài liệu!")
+                    .jobPosting(application.getJobPosting())
+                    .type(NotificationType.APPLICATION_ACTIVITY)
+                    .content("Có ứng viên cập nhật hồ sơ ứng tuyển.")
+                    .isRead(false)
+                    .timestamp(LocalDateTime.now())
+                    .build(), userId
+        );
+
         return toApplicationResponse(application);
     }
 
@@ -172,6 +235,13 @@ public class ApplicationService {
                 .orElseThrow(() -> new BadRequestException("Application not found."));
         UUID jsId = application.getResume().getJobSeeker().getId();
         return userService.getJobSeekerById(jsId);
+    }
+
+    // GET RESUME BY APPLICATION ID
+    public ResumeResponse getResumeByApplicationId(UUID id){
+        Application application = applicationRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Application not found."));
+        return resumeService.getResume(application.getResume().getId());
     }
 
     // PRIVATE METHOD
@@ -191,7 +261,7 @@ public class ApplicationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found."));
     }
 
-    private ApplicationResponse toApplicationResponse(Application application) {
+    public ApplicationResponse toApplicationResponse(Application application) {
         ResumeResponse resumeResponse = resumeService.getResume(application.getResume().getId());
         JobPostingResponse postingResponse = postingService.getJobPosting(application.getJobPosting().getId());
         return ApplicationResponse.builder()
@@ -203,8 +273,33 @@ public class ApplicationService {
                 .state(application.getState())
                 .appliedAt(application.getAppliedAt())
                 .updatedAt(application.getUpdatedAt())
+                .acceptedAt(application.getAcceptedAt())
+                .hiredAt(application.getHiredAt())
+                .rejectedAt(application.getRejectedAt())
                 .build();
     }
+
+    public static String toVietnamese(ApplicationState state) {
+        switch (state) {
+            case SUBMITTED:
+                return "Đã nộp";
+            case REVIEWING:
+                return "Đang xem xét";
+            case REQUESTED:
+                return "Yêu cầu bổ sung";
+            case INTERVIEW:
+                return "Phỏng vấn";
+            case ACCEPTED:
+                return "Được chấp nhận";
+            case HIRED:
+                return "Được tuyển dụng";
+            case REJECTED:
+                return "Bị từ chối";
+            default:
+                return "Không xác định";
+        }
+    }
+
 
 
 }

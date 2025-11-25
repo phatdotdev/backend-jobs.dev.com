@@ -15,6 +15,7 @@ public class FeedbackReviewResponse {
     UUID id;
     UUID feedbackRequestId;
     UUID expertId;
+    String reviewerName;
 
     Integer score;
 

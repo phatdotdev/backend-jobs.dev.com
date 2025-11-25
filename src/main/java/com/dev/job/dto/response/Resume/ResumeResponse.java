@@ -20,6 +20,7 @@ public class ResumeResponse {
     UUID id;
 
     String title;
+    String avatarUrl;
 
     String firstname;
     String lastname;
@@ -35,6 +36,7 @@ public class ResumeResponse {
     List<EducationResponse> educations;
     List<ExperienceResponse> experiences;
     List<SkillResponse> skills;
+    List<ProjectResponse> projects;
     List<CertificationResponse> certifications;
     List<AwardResponse> awards;
     List<ActivityResponse> activities;

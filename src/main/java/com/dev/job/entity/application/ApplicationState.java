@@ -6,4 +6,6 @@ public enum ApplicationState {
     REQUESTED,
     REJECTED,
     ACCEPTED,
+    INTERVIEW,
+    HIRED
 }

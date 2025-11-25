@@ -1,14 +1,21 @@
 package com.dev.job.service;
 
+import com.dev.job.dto.request.Expertise.CreateExpertiseRequest;
+import com.dev.job.dto.request.Expertise.UpdateExpertiseRequest;
 import com.dev.job.dto.request.User.*;
+import com.dev.job.dto.response.Expertise.ExpertiseResponse;
 import com.dev.job.dto.response.User.ExpertResponse;
 import com.dev.job.dto.response.User.JobSeekerResponse;
 import com.dev.job.dto.response.User.RecruiterResponse;
 import com.dev.job.dto.response.User.UserResponse;
 import com.dev.job.entity.resource.Image;
+import com.dev.job.entity.specification.Expertise;
 import com.dev.job.entity.user.*;
 import com.dev.job.exceptions.BadRequestException;
+import com.dev.job.exceptions.UnauthorizedException;
+import com.dev.job.mapper.ExpertiseMapper;
 import com.dev.job.mapper.UserMapper;
+import com.dev.job.repository.Expertise.ExpertiseRepository;
 import com.dev.job.repository.User.ExpertRepository;
 import com.dev.job.repository.User.JobSeekerRepository;
 import com.dev.job.repository.User.RecruiterRepository;
@@ -43,7 +50,10 @@ public class UserService {
     JobSeekerRepository jobSeekerRepository;
     RecruiterRepository recruiterRepository;
     ExpertRepository expertRepository;
+    ExpertiseRepository expertiseRepository;
+
     UserMapper userMapper;
+    ExpertiseMapper expertiseMapper;
 
     PasswordEncoder passwordEncoder;
 
@@ -172,6 +182,13 @@ public class UserService {
         return userMapper.recruiterToResponse(recruiterRepository.save(recruiter));
     }
 
+    public void validateRecruiter(UUID id){
+        Recruiter recruiter = recruiterRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Recruiter not found."));
+        recruiter.setVerified(true);
+        recruiterRepository.save(recruiter);
+    }
+
     public Page<RecruiterResponse> getRecruiters(int page, int size, String username, String email, String phone, String companyName) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Specification<Recruiter> spec = ((root, query, cb) -> cb.conjunction());
@@ -208,6 +225,18 @@ public class UserService {
                 .orElseThrow(() -> new BadRequestException("Recruiter not found."));
     }
 
+    public ExpertResponse getExpertById(UUID id){
+        return expertRepository.findById(id)
+                .map(this::expertToResponse)
+                .orElseThrow(() -> new BadRequestException("Expert not found."));
+    }
+
+    public List<ExpertiseResponse> getExpertisesByExpertId(UUID id){
+        return  expertiseRepository.findByExpertId(id)
+                .stream().map(expertiseMapper::toResponse)
+                .toList();
+    }
+
     // EXPERT MANAGEMENT
 
     public ExpertResponse createExpert(CreateExpertRequest request){
@@ -219,7 +248,7 @@ public class UserService {
         return userMapper.expertToResponse(expertRepository.save(expert));
     }
 
-    public Page<ExpertResponse> getExperts(int page, int size, String username, String email) {
+    public Page<ExpertResponse> getExperts(int page, int size, String username, String email, String phone) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Specification<Expert> spec = ((root, query, cb) -> cb.conjunction());
 
@@ -228,6 +257,10 @@ public class UserService {
         }
         if (email != null && !email.isEmpty()) {
             spec = spec.and(ExpertSpecification.hasEmail(email));
+        }
+
+        if(phone != null && !phone.isEmpty()){
+            spec = spec.and(ExpertSpecification.hasPhone(phone));
         }
 
         Page<Expert> expertPage = expertRepository.findAll(spec, pageable);
@@ -320,6 +353,45 @@ public class UserService {
         return userMapper.expertToResponse(expertRepository.save(expert));
     }
 
+    // EXPERTISES
+
+    public List<ExpertiseResponse> getAllUserExpertises(UUID userId){
+        Expert expert = expertRepository.findById(userId)
+                .orElseThrow(() -> new BadRequestException("Expert not found."));
+        return expert.getExpertises()
+                .stream()
+                .map(expertiseMapper::toResponse)
+                .toList();
+    }
+
+    public ExpertiseResponse createExpertise(CreateExpertiseRequest request, UUID expertId){
+        Expert expert = expertRepository.findById(expertId)
+                .orElseThrow(() -> new BadRequestException("Expert not found."));
+        Expertise expertise = expertiseMapper.createRequestToExpertise(request);
+        expertise.setExpert(expert);
+        expertiseRepository.save(expertise);
+        return expertiseMapper.toResponse(expertise);
+    }
+
+    public void deleteExpertise(UUID id, UUID userId){
+        Expertise expertise = expertiseRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Expertise not found."));
+        if(!expertise.getExpert().getId().equals(userId)){
+            throw new UnauthorizedException("You do not have permission.");
+        }
+        expertiseRepository.delete(expertise);
+    }
+
+    public ExpertiseResponse updateExpertise(UUID id, UUID userId, UpdateExpertiseRequest request){
+        Expertise expertise = expertiseRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Expertise not found."));
+        if(!expertise.getExpert().getId().equals(userId)){
+            throw new UnauthorizedException("You do not have permission.");
+        }
+        expertiseMapper.updateExpertise(expertise, request);
+        return expertiseMapper.toResponse(expertiseRepository.save(expertise));
+    }
+
     /******** ID -> USERNAME *********/
     @Cacheable(value = "usernames", key = "#userIdString")
     public String getUsernameById(UUID userId) {
@@ -365,6 +437,13 @@ public class UserService {
         RecruiterResponse response = userMapper.recruiterToResponse(recruiter);
         response.setAvatarUrl(recruiter.getAvatar() != null ? recruiter.getAvatar().getFileName() : "avatars/default-recruiter-avatar.png");
         response.setCoverUrl(recruiter.getCover() != null ? recruiter.getCover().getFileName() : "");
+        return response;
+    }
+
+    private ExpertResponse expertToResponse(Expert expert){
+        ExpertResponse response = userMapper.expertToResponse(expert);
+        response.setAvatarUrl(expert.getAvatar() != null ? expert.getAvatar().getFileName() : "avatars/default-expert-avatar.png");
+        response.setCoverUrl(expert.getCover() != null ? expert.getCover().getFileName() : "");
         return response;
     }
 

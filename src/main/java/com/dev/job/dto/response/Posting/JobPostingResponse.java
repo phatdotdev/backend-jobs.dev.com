@@ -1,5 +1,6 @@
 package com.dev.job.dto.response.Posting;
 
+import com.dev.job.dto.response.Application.ApplicationResponse;
 import com.dev.job.entity.posting.JobType;
 import com.dev.job.entity.posting.PostState;
 import com.dev.job.entity.resource.Document;
@@ -37,6 +38,7 @@ public class JobPostingResponse {
     String benefits;
 
     PostState state;
+    List<ApplicationResponse> applications;
 
     int views;
     int likes;

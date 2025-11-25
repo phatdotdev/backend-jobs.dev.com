@@ -1,5 +1,6 @@
 package com.dev.job.dto.response.Resume;
 
+import jakarta.persistence.Lob;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -19,6 +20,7 @@ public class CertificationResponse {
     LocalDate expirationDate;
     String credentialId;
     String credentialUrl;
+    @Lob
     String description;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

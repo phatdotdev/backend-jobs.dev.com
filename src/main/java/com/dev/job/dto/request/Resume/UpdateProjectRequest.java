@@ -21,6 +21,8 @@ public class UpdateProjectRequest {
     @Size(max = 255, message = "Role must not exceed 255 characters")
     String role;
 
+    String projectUrl;
+
     @Size(max = 500, message = "Result must not exceed 500 characters")
     String result;
 }

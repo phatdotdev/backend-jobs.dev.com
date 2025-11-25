@@ -6,12 +6,16 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.UUID;
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateSkillRequest {
+    UUID id;
+
     @NotBlank(message = "Skill name must not be blank")
     @Size(max = 100, message = "Skill name must not exceed 100 characters")
     String name;

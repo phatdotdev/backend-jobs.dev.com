@@ -27,9 +27,7 @@ public class Project {
     String role;
     String result;
 
-    @OneToOne
-    @JoinColumn(name = "link_id")
-    Link link;
+    String projectUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_seeker_id")

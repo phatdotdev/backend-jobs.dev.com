@@ -1,6 +1,7 @@
 package com.dev.job.controller;
 
 import com.dev.job.dto.ApiResponse;
+import com.dev.job.dto.response.Communication.NotificationResponse;
 import com.dev.job.entity.communication.Notification;
 import static com.dev.job.utils.ResponseHelper.*;
 
@@ -24,7 +25,7 @@ public class NotificationController {
     NotificationService notificationService;
 
     @GetMapping("/mine")
-    ResponseEntity<ApiResponse<List<Notification>>> getAllMyNotfications(Authentication authentication){
+    ResponseEntity<ApiResponse<List<NotificationResponse>>> getAllMyNotifications(Authentication authentication){
         return ok(notificationService.getAllMyNotifications(UUID.fromString(authentication.getName())));
     }
 

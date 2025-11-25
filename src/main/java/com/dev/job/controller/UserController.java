@@ -1,14 +1,16 @@
 package com.dev.job.controller;
 
 import com.dev.job.dto.ApiResponse;
+import com.dev.job.dto.request.Expertise.CreateExpertiseRequest;
+import com.dev.job.dto.request.Expertise.UpdateExpertiseRequest;
 import com.dev.job.dto.request.User.*;
 
+import com.dev.job.dto.response.Expertise.ExpertiseResponse;
 import com.dev.job.dto.response.User.ExpertResponse;
 import com.dev.job.dto.response.User.JobSeekerResponse;
 import com.dev.job.dto.response.User.RecruiterResponse;
 import com.dev.job.dto.response.User.UserResponse;
 import com.dev.job.entity.resource.Image;
-import com.dev.job.entity.user.Recruiter;
 import com.dev.job.entity.user.UserStatus;
 import com.dev.job.service.UserService;
 import jakarta.validation.Valid;
@@ -30,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import java.util.List;
 import java.util.UUID;
 
 import static com.dev.job.utils.ResponseHelper.*;
@@ -177,8 +180,9 @@ public class UserController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String username,
-            @RequestParam(required = false) String email) {
-        return ok(userService.getExperts(page, size, username, email));
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String phone) {
+        return ok(userService.getExperts(page, size, username, email, phone));
     }
 
     /*********** CREATE USER *************/
@@ -199,6 +203,14 @@ public class UserController {
     @PostMapping("/experts")
     public ResponseEntity<ApiResponse<ExpertResponse>> createExpert(@RequestBody CreateExpertRequest request) {
         return created(userService.createExpert(request));
+    }
+
+    // Validate Recruiter
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/recruiters/{id}/verified")
+    public ResponseEntity<ApiResponse<String>> validateRecruiter(@PathVariable UUID id) {
+        userService.validateRecruiter(id);
+        return ok("Recruiter verified");
     }
 
     /* */
@@ -301,6 +313,38 @@ public class UserController {
         return ok(userService.updateExpertProfile(request, id));
     }
 
+    // EXPERTISES
+
+    @PreAuthorize("hasRole('EXPERT')")
+    @GetMapping("/expert/expertises")
+    public ResponseEntity<ApiResponse<List<ExpertiseResponse>>> getAllExpertises(Authentication authentication){
+        return ok(userService.getAllUserExpertises(UUID.fromString(authentication.getName())));
+    }
+
+    @PreAuthorize("hasRole('EXPERT')")
+    @PostMapping("/expert/expertises")
+    public ResponseEntity<ApiResponse<ExpertiseResponse>> createExpertise(Authentication authentication,
+                                                                          @RequestBody CreateExpertiseRequest request){
+        return ok(userService.createExpertise(request, UUID.fromString(authentication.getName())));
+    }
+
+    @PreAuthorize("hasRole('EXPERT')")
+    @DeleteMapping("/expert/expertises/{id}")
+    public ResponseEntity<ApiResponse<String>> deleteExpertise(Authentication authentication,
+                                                      @PathVariable UUID id){
+        userService.deleteExpertise(id, UUID.fromString(authentication.getName()));
+        return ok("Expertises has been delete.");
+    }
+
+    @PreAuthorize("hasRole('EXPERT')")
+    @PutMapping("/expert/expertises/{id}")
+    public ResponseEntity<ApiResponse<ExpertiseResponse>> updateExpertise(Authentication authentication,
+                                                               @PathVariable UUID id,
+                                                               @RequestBody UpdateExpertiseRequest request){
+        return ok(userService.updateExpertise(id, UUID.fromString(authentication.getName()), request));
+    }
+
+
     // GET USERS BY ID
     @GetMapping("/job-seeker/{id}")
     ResponseEntity<ApiResponse<JobSeekerResponse>> getJobSeekerById(@PathVariable UUID id){
@@ -311,4 +355,15 @@ public class UserController {
     ResponseEntity<ApiResponse<RecruiterResponse>> getRecruiterById(@PathVariable UUID id){
         return ok(userService.getRecruiterById(id));
     }
+
+    @GetMapping("/expert/{id}")
+    ResponseEntity<ApiResponse<ExpertResponse>> getExpertById(@PathVariable UUID id){
+        return ok(userService.getExpertById(id));
+    }
+
+    @GetMapping("/expert/{id}/expertises")
+    ResponseEntity<ApiResponse<List<ExpertiseResponse>>> getExpertisesByExpertId(@PathVariable UUID id){
+        return ok(userService.getExpertisesByExpertId(id));
+    }
+
 }
