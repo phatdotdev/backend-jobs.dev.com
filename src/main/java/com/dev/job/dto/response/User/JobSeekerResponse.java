@@ -25,6 +25,7 @@ public class JobSeekerResponse {
     String lastname;
     String phone;
     String address;
+    boolean recommended;
     String gender;
     LocalDate dob;
     String avatarUrl;

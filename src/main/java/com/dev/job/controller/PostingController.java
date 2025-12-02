@@ -62,14 +62,13 @@ public class PostingController {
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<Page<JobPostingResponse>>> searchJobPostings(
         @RequestParam(required = false) String keyword,
-        @RequestParam(required = false) BigDecimal minSalary,
-        @RequestParam(required = false) BigDecimal maxSalary,
+        @RequestParam(required = false) BigDecimal salary,
         @RequestParam(required = false) UUID locationId,
         @RequestParam(required = false) JobType type,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ){
-        Page<JobPostingResponse> results = postingService.searchJobPostings(keyword, minSalary, maxSalary, locationId, type, page, size);
+        Page<JobPostingResponse> results = postingService.searchJobPostings(keyword, salary, locationId, type, page, size);
         return ok(results);
     }
 
@@ -82,14 +81,13 @@ public class PostingController {
     @GetMapping("/admin")
     public ResponseEntity<ApiResponse<Page<JobPostingResponse>>> getAllJobPostings(
             @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) BigDecimal minSalary,
-            @RequestParam(required = false) BigDecimal maxSalary,
+            @RequestParam(required = false) BigDecimal salary,
             @RequestParam(required = false) UUID locationId,
             @RequestParam(required = false) JobType type,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ){
-        Page<JobPostingResponse> results = postingService.getAllJobPostings(keyword, minSalary, maxSalary, locationId, type, page, size);
+        Page<JobPostingResponse> results = postingService.getAllJobPostings(keyword, salary, locationId, type, page, size);
         return ResponseEntity.ok(ApiResponse
                 .<Page<JobPostingResponse>>builder()
                 .data(results)

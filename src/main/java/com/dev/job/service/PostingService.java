@@ -3,6 +3,7 @@ package com.dev.job.service;
 import com.dev.job.dto.request.Posting.CreateJobPostingRequest;
 import com.dev.job.dto.request.Posting.UpdateJobPostingRequest;
 import com.dev.job.dto.response.Application.ApplicationResponse;
+import com.dev.job.dto.response.Posting.JobPostingPrompt;
 import com.dev.job.dto.response.Posting.JobPostingResponse;
 import com.dev.job.dto.response.Resume.ResumeResponse;
 import com.dev.job.entity.application.Application;
@@ -92,27 +93,25 @@ public class PostingService {
     }
 
     public Page<JobPostingResponse> searchJobPostings(String keyword,
-                                                      BigDecimal minSalary,
-                                                      BigDecimal maxSalary,
+                                                      BigDecimal salary,
                                                       UUID locationId,
                                                       JobType type,
                                                       int page,
                                                       int size) {
-        Specification<JobPosting> spec = JobPostingSpecification.buildSpec(keyword, minSalary, maxSalary, locationId, type, PostState.PUBLISHED);
+        Specification<JobPosting> spec = JobPostingSpecification.buildSpec(keyword, salary, locationId, type, PostState.PUBLISHED);
         Pageable pageable = PageRequest.of(page, size, Sort.by("expiredAt").descending());
         return jobPostingRepository.findAll(spec, pageable)
                 .map(this::toJobResponse);
     }
 
     public Page<JobPostingResponse> getAllJobPostings(String keyword,
-                                                      BigDecimal minSalary,
-                                                      BigDecimal maxSalary,
+                                                      BigDecimal salary,
                                                       UUID locationId,
                                                       JobType type,
                                                       int page,
                                                       int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt", "expiredAt").descending());
-        Specification<JobPosting> spec = JobPostingSpecification.buildSpec(keyword, minSalary, maxSalary, locationId, type, null);
+        Specification<JobPosting> spec = JobPostingSpecification.buildSpec(keyword, salary, locationId, type, null);
 
         return jobPostingRepository.findAll(spec, pageable).map(this::toJobResponse);
     }
@@ -320,6 +319,13 @@ public class PostingService {
         return postings.map(this::toJobResponse);
     }
 
+    List<JobPostingPrompt> getJobPostingByState(){
+        LocalDateTime now = LocalDateTime.now();
+        return jobPostingRepository.findTop20ByStateAndExpiredAtAfterOrderByExpiredAtAsc(PostState.PUBLISHED, now)
+                .stream().map(this::toPrompt)
+                .toList();
+    }
+
 
     public JobPostingResponse toJobResponse(JobPosting job) {
         return JobPostingResponse.builder()
@@ -356,6 +362,19 @@ public class PostingService {
                 .createdAt(job.getCreatedAt())
                 .expiredAt(job.getExpiredAt())
                 .build();
+    }
+
+    public JobPostingPrompt toPrompt(JobPosting job) {
+        return new JobPostingPrompt(
+                job.getId(),
+                job.getTitle(),
+                job.getRecruiter() != null ? job.getRecruiter().getCompanyName() : null,
+                job.getLocation().getName(),
+                job.getDescription(),
+                job.getRequirements(),
+                job.getExperience(),
+                job.getType().name()
+        );
     }
 
     public ApplicationResponse toApplicationResponseNoPost(Application application) {

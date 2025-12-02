@@ -115,8 +115,8 @@ public class UserController {
     public ResponseEntity<ApiResponse<Page<RecruiterResponse>>> searchCompanies(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String companyName){
-            return ok(userService.getRecruiters(page, size, null, null, null, companyName));
+            @RequestParam(required = false) String search){
+            return ok(userService.getRecruiters(page, size, null, null, null, search));
     }
 
     @GetMapping("/companies/{id}")

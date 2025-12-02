@@ -433,7 +433,7 @@ public class UserService {
         return response;
     }
 
-    private  RecruiterResponse recruiterToResponse(Recruiter recruiter){
+    public  RecruiterResponse recruiterToResponse(Recruiter recruiter){
         RecruiterResponse response = userMapper.recruiterToResponse(recruiter);
         response.setAvatarUrl(recruiter.getAvatar() != null ? recruiter.getAvatar().getFileName() : "avatars/default-recruiter-avatar.png");
         response.setCoverUrl(recruiter.getCover() != null ? recruiter.getCover().getFileName() : "");

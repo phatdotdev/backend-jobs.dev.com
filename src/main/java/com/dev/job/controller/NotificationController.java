@@ -1,6 +1,7 @@
 package com.dev.job.controller;
 
 import com.dev.job.dto.ApiResponse;
+import com.dev.job.dto.request.Communication.CreateNotificationRequest;
 import com.dev.job.dto.response.Communication.NotificationResponse;
 import com.dev.job.entity.communication.Notification;
 import static com.dev.job.utils.ResponseHelper.*;
@@ -10,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,5 +40,14 @@ public class NotificationController {
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping
+    public ResponseEntity<?> createNotification(
+            @RequestBody CreateNotificationRequest request,
+            Authentication authentication
+            ){
+        notificationService.createNotificationToUsers(request, UUID.fromString(authentication.getName()));
+        return ok("send notification.");
+    }
 
 }

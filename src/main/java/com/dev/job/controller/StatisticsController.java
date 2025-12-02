@@ -1,6 +1,8 @@
 package com.dev.job.controller;
 
 import com.dev.job.dto.ApiResponse;
+import com.dev.job.dto.response.Posting.JobPostingResponse;
+import com.dev.job.dto.response.User.RecruiterResponse;
 import com.dev.job.dto.response.statistics.AdminStatisticsResponse;
 import com.dev.job.dto.response.statistics.JobSeekerActivities;
 import com.dev.job.dto.response.statistics.RecruiterStatisticsResponse;
@@ -12,10 +14,9 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -40,6 +41,20 @@ public class StatisticsController {
     @GetMapping("/job-seeker")
     ResponseEntity<ApiResponse<JobSeekerActivities>> getJobSeekerActivities(Authentication authentication){
         return ok(statisticsService.getJobSeekerActivities(UUID.fromString(authentication.getName())));
+    }
+
+    @GetMapping("/postings/trend")
+    ResponseEntity<ApiResponse<List<JobPostingResponse>>> getTrendingPostings(
+            @RequestParam(defaultValue = "3") int count
+    ){
+        return ok(statisticsService.getTrendingPostings(count));
+    }
+
+    @GetMapping("/companies/trend")
+    ResponseEntity<ApiResponse<List<RecruiterResponse>>> getTrendingCompanies(
+            @RequestParam(defaultValue = "3") int count
+    ){
+        return ok(statisticsService.getTrendingRecruiters(count));
     }
 
 }

@@ -13,6 +13,7 @@ public class UpdateJobSeekerRequest {
     String username;
     String firstname;
     String lastname;
+    boolean recommended;
     String phone;
     String address;
     String gender;

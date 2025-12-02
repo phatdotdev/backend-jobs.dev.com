@@ -28,5 +28,5 @@ public class NotificationResponse {
 
     UUID applicationId;
     UUID postId;
-    UUID requestId;
+    UUID resumeId;
 }

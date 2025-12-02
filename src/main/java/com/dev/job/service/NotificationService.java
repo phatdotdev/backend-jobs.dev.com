@@ -1,11 +1,13 @@
 package com.dev.job.service;
 
+import com.dev.job.dto.request.Communication.CreateNotificationRequest;
 import com.dev.job.dto.response.Communication.NotificationResponse;
 import com.dev.job.entity.communication.Notification;
 import com.dev.job.entity.communication.NotificationType;
 import com.dev.job.exceptions.BadRequestException;
 import com.dev.job.exceptions.ResourceNotFoundException;
 import com.dev.job.repository.Communication.NotificationRepository;
+import com.dev.job.repository.User.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class NotificationService {
+
+    UserRepository userRepository;
     SimpMessagingTemplate messagingTemplate;
     NotificationRepository notificationRepository;
 
@@ -41,12 +45,13 @@ public class NotificationService {
         }
 
         System.out.println("Processing notification send for " + recipientIds.size() + " users.");
-
+        LocalDateTime now = LocalDateTime.now();
         for (UUID recipientId : recipientIds) {
             Notification userNotification = Notification.builder()
                     .recipientId(recipientId)
                     .type(sourceNotification.getType())
                     .content(sourceNotification.getContent())
+                    .timestamp(now)
                     .build();
             sendUserNotification(userNotification, userId);
         }
@@ -69,6 +74,17 @@ public class NotificationService {
         notificationRepository.markAsRead(notificationId);
     }
 
+    @Transactional
+    public void createNotificationToUsers(CreateNotificationRequest request, UUID userId){
+        List<UUID> ids = userRepository.findAllUserIds();
+        Notification notification = Notification.builder()
+                .type(NotificationType.SYSTEM_ANNOUNCEMENT)
+                .title(request.getTitle())
+                .content(request.getContent())
+                .build();
+        sendUserNotificationsToUsers(ids, notification, userId);
+    }
+
 
     // PRIVATE METHOD
 
@@ -84,7 +100,7 @@ public class NotificationService {
                 .timestamp(notification.getTimestamp())
                 .type(notification.getType().toString())
                 .applicationId(notification.getApplication() != null ? notification.getApplication().getId() : null)
-                .requestId(notification.getFeedbackRequest() != null ? notification.getFeedbackRequest().getId() : null)
+                .resumeId(notification.getFeedbackRequest() != null ? notification.getFeedbackRequest().getResume().getId() : null)
                 .postId(notification.getJobPosting() != null ? notification.getJobPosting().getId() : null)
                 .objectTitle(resolveObjectTitle(notification))
                 .build();

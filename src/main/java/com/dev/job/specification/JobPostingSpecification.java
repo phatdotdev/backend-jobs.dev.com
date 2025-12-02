@@ -19,18 +19,16 @@ public class JobPostingSpecification {
         };
     }
 
-    public static Specification<JobPosting> salaryBetween(BigDecimal min, BigDecimal max) {
+    public static Specification<JobPosting> matchExpectedSalary(BigDecimal expectedSalary) {
         return (root, query, cb) -> {
-            if (min == null && max == null) return null;
-            if (min != null && max != null) {
-                return cb.between(root.get("promotedSalary"), min, max);
-            } else if (min != null) {
-                return cb.greaterThanOrEqualTo(root.get("promotedSalary"), min);
-            } else {
-                return cb.lessThanOrEqualTo(root.get("promotedSalary"), max);
-            }
+            if (expectedSalary == null) return null;
+            return cb.and(
+                    cb.lessThanOrEqualTo(root.get("minSalary"), expectedSalary),
+                    cb.greaterThanOrEqualTo(root.get("maxSalary"), expectedSalary)
+            );
         };
     }
+
 
     public static Specification<JobPosting> locationIs(UUID locationId) {
         return (root, query, cb) -> {
@@ -55,8 +53,7 @@ public class JobPostingSpecification {
 
     public static Specification<JobPosting> buildSpec(
             String keyword,
-            BigDecimal minSalary,
-            BigDecimal maxSalary,
+            BigDecimal salary,
             UUID locationId,
             JobType type,
             PostState state
@@ -64,7 +61,7 @@ public class JobPostingSpecification {
         List<Specification<JobPosting>> specs = new ArrayList<>();
 
         specs.add(hasKeyword(keyword));
-        specs.add(salaryBetween(minSalary, maxSalary));
+        specs.add(matchExpectedSalary(salary));
         specs.add(locationIs(locationId));
         specs.add(typeIs(type));
         specs.add(stateIs(state));

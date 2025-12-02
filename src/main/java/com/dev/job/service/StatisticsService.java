@@ -1,5 +1,7 @@
 package com.dev.job.service;
 
+import com.dev.job.dto.response.Posting.JobPostingResponse;
+import com.dev.job.dto.response.User.RecruiterResponse;
 import com.dev.job.dto.response.statistics.AdminStatisticsResponse;
 import com.dev.job.dto.response.statistics.JobSeekerActivities;
 import com.dev.job.dto.response.statistics.RecruiterStatisticsResponse;
@@ -17,6 +19,8 @@ import com.dev.job.repository.User.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -37,6 +41,7 @@ public class StatisticsService {
     RecruiterRepository companyRepository;
     JobPostingRepository jobPostingRepository;
 
+    UserService userService;
     PostingService postingService;
 
     public AdminStatisticsResponse getAdminStatistics() {
@@ -121,6 +126,20 @@ public class StatisticsService {
                 .likes(jobSeeker.getLikes().stream().map(postingService::toJobResponse).toList())
                 .applies(applicationRepository.findJobPostingsByUserId(id).stream().map(postingService::toJobResponse).toList())
                 .build();
+    }
+
+    public List<JobPostingResponse> getTrendingPostings(int count){
+        Pageable pageable = PageRequest.of(0, count);
+        return jobPostingRepository.findTopFeaturedPosts(pageable)
+                .stream()
+                .map(postingService::toJobResponse)
+                .toList();
+    }
+
+    public List<RecruiterResponse> getTrendingRecruiters(int count){
+        Pageable pageable = PageRequest.of(0, count);
+        return companyRepository.findTopFeaturedRecruiters(pageable)
+                .stream().map(userService::recruiterToResponse).toList();
     }
 
 }

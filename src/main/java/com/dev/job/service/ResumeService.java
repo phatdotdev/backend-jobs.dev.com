@@ -2,6 +2,7 @@ package com.dev.job.service;
 
 import com.dev.job.dto.request.Resume.*;
 import com.dev.job.dto.response.Resume.*;
+import com.dev.job.dto.response.User.CandidatePrompt;
 import com.dev.job.dto.response.User.JobSeekerResponse;
 import com.dev.job.entity.resume.*;
 import com.dev.job.entity.user.JobSeeker;
@@ -15,6 +16,9 @@ import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.jdbc.Work;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -413,6 +417,14 @@ public class ResumeService {
         certificationRepository.deleteById(certId);
     }
 
+    public List<CandidatePrompt> getCandidatesFeatures(){
+        Pageable pageable = PageRequest.of(0, 20);
+        return jobSeekerRepository.findByRecommendedTrue(pageable)
+                .stream()
+                .map(this::candidateToPrompt)
+                .toList();
+    }
+
     private Certification getCertification(UUID certId) {
         return certificationRepository.findById(certId)
                 .orElseThrow(() -> new ResourceNotFoundException("Certification not found."));
@@ -469,6 +481,43 @@ public class ResumeService {
                 .build();
     }
 
+    private CandidatePrompt candidateToPrompt(JobSeeker user){
+        return new CandidatePrompt(
+                user.getId(),
+                user.getFirstname() + " " + user.getLastname(),
+                user.getEmail(),
+                user.getPhone(),
+                user.getAddress(),
+                user.getEducations().stream().map(this::educationToString).toList(),
+                user.getExperiences().stream().map(this::experienceToString).toList(),
+                user.getSkills().stream().map(this::skillToString).toList()
+        );
+    }
+
+    private ResumePrompt resumeToPrompt(Resume resume) {
+        return new ResumePrompt(
+                resume.getJobSeeker() != null ? resume.getJobSeeker().getAddress() : null,
+                resume.getIntroduction(),
+                resume.getObjectCareer(),
+                resume.getEducations() != null
+                        ? resume.getEducations().stream()
+                        .map(this::educationToString)
+                        .toList()
+                        : List.of(),
+                resume.getExperiences() != null
+                        ? resume.getExperiences().stream()
+                        .map(this::experienceToString)
+                        .toList()
+                        : List.of(),
+                resume.getSkills() != null
+                        ? resume.getSkills().stream()
+                        .map(this::skillToString)
+                        .toList()
+                        : List.of()
+        );
+    }
+
+
     private void addJobSeekerInfo(ResumeResponse response, JobSeekerResponse js){
         response.setFirstname(js.getFirstname());
         response.setLastname(js.getLastname());
@@ -477,6 +526,18 @@ public class ResumeService {
         response.setAddress(js.getAddress());
         response.setDob(js.getDob());
         response.setGender(js.getGender());
+    }
+
+    private String educationToString(Education education){
+        return education.getSchoolName() + " - " + education.getMajor() + " - " + education.getGrade() + " - " + education.getDescription();
+    }
+
+    private String experienceToString(WorkExperience experience){
+        return experience.getCompanyName() + " - " + experience.getPosition() + " - " + experience.getDescription();
+    }
+
+    private String skillToString(Skill skill){
+        return skill.getName() + " - " + skill.getLevel() + " - " + skill.getDescription();
     }
 
 }

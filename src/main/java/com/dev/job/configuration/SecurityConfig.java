@@ -36,7 +36,7 @@ public class SecurityConfig {
         "/files/**",
         "/topic/**",
         "/app/**",
-        "/chat/**"
+        "/chat/**",
     };
 
     private final String[] IGNORED_URLS = {
@@ -51,7 +51,8 @@ public class SecurityConfig {
             "/files/**",
             "/topic/**",
             "/app/**",
-            "/chat/**"
+            "/chat/**",
+            "/statistics/postings/trend"
     };
 
     @Autowired
@@ -77,7 +78,9 @@ public class SecurityConfig {
                         "/files/**",
                         "/topic/**",
                         "/app/**",
-                        "/chat/**"
+                        "/chat/**",
+                        "/statistics/postings/trend",
+                        "/statistics/companies/trend"
                 )
 
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))

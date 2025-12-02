@@ -107,7 +107,7 @@ public class ReviewService {
         notificationService.sendUserNotification(
                 Notification.builder()
                         .recipientId(request.getResume().getJobSeeker().getId())
-                        .title("Ứng nhận đánh giá!")
+                        .title("Ứng viên nhận đánh giá!")
                         .feedbackRequest(request)
                         .type(NotificationType.REVIEW_RECEIVED)
                         .content("Đã có đánh giá cho hồ sơ của bạn.")

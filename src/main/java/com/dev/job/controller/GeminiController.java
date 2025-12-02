@@ -1,12 +1,18 @@
 package com.dev.job.controller;
 
+import com.dev.job.dto.ApiResponse;
 import com.dev.job.service.GeminiService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import static com.dev.job.utils.ResponseHelper.*;
+
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -15,8 +21,13 @@ public class GeminiController {
 
     GeminiService geminiService;
 
-    @GetMapping("/suggest-jobs")
-    public String suggest(@RequestParam String resume) {
-        return geminiService.suggestTop5Jobs(resume);
+    @PostMapping("{resumeId}/job-suggestions")
+    public ResponseEntity<ApiResponse<Object>> suggestJobPosting(@PathVariable UUID resumeId) {
+        return ok(geminiService.suggestTop5Jobs(resumeId));
+    }
+
+    @PostMapping("{postId}/candidate-suggestions")
+    public ResponseEntity<ApiResponse<Object>> suggestCandidates(@PathVariable UUID postId){
+        return ok(geminiService.suggestTop5Candidates(postId));
     }
 }

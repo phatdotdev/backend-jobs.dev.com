@@ -27,6 +27,9 @@ public class JobSeeker extends User{
     String gender;
     LocalDate dob;
 
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    boolean recommended;
+
     @OneToMany(mappedBy = "jobSeeker", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     List<Education> educations;
