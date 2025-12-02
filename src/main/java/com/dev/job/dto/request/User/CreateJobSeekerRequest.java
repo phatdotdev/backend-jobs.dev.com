@@ -2,14 +2,17 @@ package com.dev.job.dto.request.User;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDate;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CreateJobSeekerRequest {
     @Length(min = 3, message = "Username must be at least 3 characters.")
     @NotNull(message = "Username is required.")
@@ -21,6 +24,8 @@ public class CreateJobSeekerRequest {
 
     @Length(min = 8, message = "Password must be at least 8 characters.")
     String password;
+
+    String role;
 
     String firstname;
     String lastname;
