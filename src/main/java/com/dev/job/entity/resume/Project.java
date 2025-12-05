@@ -22,6 +22,8 @@ public class Project {
     UUID id;
 
     String name;
+
+    @Lob
     String description;
 
     String role;

@@ -22,6 +22,6 @@ public class Tag {
     @Column(nullable = false, unique = true)
     String name;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     String description;
 }

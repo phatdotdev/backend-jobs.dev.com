@@ -27,6 +27,8 @@ public class Activity {
     LocalDate startDate;
     @Column(name = "end_date")
     LocalDate endDate;
+
+    @Lob
     String description;
 
     @ManyToOne(fetch = FetchType.LAZY)

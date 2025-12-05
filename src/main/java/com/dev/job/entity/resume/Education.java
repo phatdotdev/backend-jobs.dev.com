@@ -27,6 +27,8 @@ public class Education {
     @Column(name = "end_date")
     LocalDate endDate;
     Double grade;
+
+    @Lob
     String description;
     boolean deleted;
 

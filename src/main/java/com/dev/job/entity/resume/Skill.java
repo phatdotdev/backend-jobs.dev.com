@@ -22,6 +22,8 @@ public class Skill {
     String name;
     SkillLevel level;
     SkillType category;
+
+    @Lob
     String description;
 
     @ManyToOne(fetch = FetchType.LAZY)

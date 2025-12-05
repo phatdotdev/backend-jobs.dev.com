@@ -164,7 +164,6 @@ public class PostingService {
         if (!posting.getRecruiter().getId().equals(rId)) {
             throw new UnauthorizedException("You do not have permission.");
         }
-
         postingMapper.updateJobPostingFromRequest(posting, request);
         System.out.println("required documents: "+request.getRequiredDocuments());
 
@@ -172,7 +171,16 @@ public class PostingService {
 
         posting.setLocation(locationRepository.findById(request.getLocationId())
                 .orElseThrow(() -> new ResourceNotFoundException("Location not found.")));
+        posting.setTitle(request.getTitle());
+        posting.setDescription(request.getDescription());
+        posting.setExperience(request.getExperience());
+        posting.setMaxSalary(request.getMaxSalary());
+        posting.setMinSalary(request.getMinSalary());
+        posting.setExpiredAt(request.getExpiredAt());
+        posting.setRequiredDocuments(request.getRequiredDocuments());
+        posting.setBenefits(request.getBenefits());
         posting.setUpdatedAt(LocalDateTime.now());
+
 
         // IMAGES
         List<String> retainedImageNames = request.getImagesToRetain();

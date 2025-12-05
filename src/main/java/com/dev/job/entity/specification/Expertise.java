@@ -20,6 +20,8 @@ public class Expertise {
     UUID id;
     String title;
     String field;
+
+    @Lob
     String description;
     int yearsOfExperience;
 

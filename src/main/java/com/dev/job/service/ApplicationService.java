@@ -176,7 +176,10 @@ public class ApplicationService {
             } else if(request.getState() == ApplicationState.REJECTED){
                 application.setState(ApplicationState.REJECTED);
                 application.setRejectedAt(now);
-            } else {
+            } else if(request.getState() == ApplicationState.REVIEWING && (application.getState() == ApplicationState.SUBMITTED || application.getState() == ApplicationState.REQUESTED)){
+                application.setState(ApplicationState.ACCEPTED);
+            }
+            else {
                 throw new BadRequestException("Invalid application state.");
             }
         }

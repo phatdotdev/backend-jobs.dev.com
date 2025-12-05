@@ -99,6 +99,8 @@ public class ApplicationController {
         return ok(applicationService.updateDocuments(id, files, userId));
     }
 
+    
+
     // GET JOBSEEKER BY APPLICANT ID
     @GetMapping("/{id}/job-seeker")
     public ResponseEntity<ApiResponse<JobSeekerResponse>> getJobSeekerByApplicantId(@PathVariable UUID id){

@@ -26,6 +26,8 @@ public class Certification {
     LocalDate expirationDate;
     String credentialId;
     String credentialUrl;
+
+    @Lob
     String description;
 
     @ManyToOne(fetch = FetchType.LAZY)

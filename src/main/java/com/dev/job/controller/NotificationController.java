@@ -50,4 +50,14 @@ public class NotificationController {
         return ok("send notification.");
     }
 
+    @PostMapping("/{postId}/invitation/{userId}")
+    public ResponseEntity<?> inviteJobSeeker(
+            @PathVariable UUID postId,
+            @PathVariable UUID userId,
+            Authentication authentication
+    ){
+        notificationService.sendInvitationToUser(UUID.fromString(authentication.getName()), postId, userId);
+        return ok("send invitation.");
+    }
+
 }

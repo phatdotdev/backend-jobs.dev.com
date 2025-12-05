@@ -6,6 +6,7 @@ import com.dev.job.dto.response.Posting.JobPostingPrompt;
 import com.dev.job.dto.response.Posting.JobPostingResponse;
 import com.dev.job.dto.response.Resume.ResumeResponse;
 import com.dev.job.dto.response.User.CandidatePrompt;
+import com.dev.job.dto.response.User.JobSeekerResponse;
 import com.google.gson.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class GeminiService {
 
     ResumeService resumeService;
     PostingService postingService;
+    UserService userService;
 
     @Value("${gemini.api-key}")
     @NonFinal
@@ -93,9 +95,8 @@ public class GeminiService {
         if (response == null || response.isBlank()) {
             return fallbackWithCandidateScore(availableCandidates);
         }
-//
-//        return enrichWithFullCandidateInfo(response, availableCandidates);
-        return null;
+        return enrichWithFullCandidateInfo(response, availableCandidates);
+//        return null;
     }
 
     private String callGeminiAPI(String prompt) {
@@ -314,7 +315,7 @@ public class GeminiService {
                     UUID id = parseUuid(idStr);
                     if (id == null || selected.contains(id)) continue;
 
-                    ResumeResponse candidate = resumeService.getResume(id);
+                    JobSeekerResponse candidate = userService.getJobSeekerById(id);
                     if (candidate == null) continue;
 
                     selected.add(id);
@@ -322,8 +323,11 @@ public class GeminiService {
 
                     result.add(new SuggestedCandidate(
                             candidate.getId(),
-                            candidate.getFirstname()+" "+candidate.getLastname(),
+                            candidate.getFirstname() != null && candidate.getLastname() != null
+                                    ? candidate.getFirstname()+" "+candidate.getLastname()
+                                    : candidate.getUsername(),
                             candidate.getEmail(),
+                            candidate.getPhone(),
                             score,
                             reason
                     ));
@@ -366,13 +370,16 @@ public class GeminiService {
             if (result.size() >= targetSize) break;
             if (selected.contains(c.id())) continue;
 
-            ResumeResponse candidate = resumeService.getResume(c.id());
+            JobSeekerResponse candidate = userService.getJobSeekerById(c.id());
             if (candidate == null) continue;
 
             result.add(new SuggestedCandidate(
                     candidate.getId(),
-                    candidate.getFirstname() + " "+candidate.getLastname(),
+                    candidate.getFirstname() != null && candidate.getLastname() != null
+                            ? candidate.getFirstname()+" "+candidate.getLastname()
+                            : candidate.getUsername(),
                     candidate.getEmail(),
+                    null,
                     70 + (int) (Math.random() * 21),
                     "Ứng viên tiềm năng"
             ));
@@ -410,12 +417,15 @@ public class GeminiService {
         return toJsonCandidateResult(candidates.stream()
                 .limit(5)
                 .map(c -> {
-                    ResumeResponse full = resumeService.getResume(c.id());
+                    JobSeekerResponse full = userService.getJobSeekerById(c.id());
                     if (full == null) return null;
                     return new SuggestedCandidate(
                             full.getId(),
-                            full.getFirstname()+" "+full.getLastname(),
+                            full.getFirstname() != null && full.getLastname() != null
+                                    ? full.getFirstname()+" "+full.getLastname()
+                                    : full.getUsername(),
                             full.getEmail(),
+                            full.getPhone(),
                             70 + (int) (Math.random() * 26),
                             "Ứng viên tiềm năng"
                     );
@@ -469,12 +479,14 @@ public class GeminiService {
                 obj.addProperty("id", candidate.id().toString());
                 obj.addProperty("fullName", candidate.fullName());
                 obj.addProperty("email", candidate.email());
+                obj.addProperty("phone",candidate.phone());
                 obj.addProperty("match_score", candidate.matchScore());
                 obj.addProperty("reason", candidate.reason());
             } else {
                 obj.addProperty("id", (String) null);
                 obj.addProperty("fullName", "Không có");
                 obj.addProperty("email", "");
+                obj.addProperty("phone", "");
                 obj.addProperty("match_score", 0);
                 obj.addProperty("reason", "");
             }
@@ -522,6 +534,7 @@ public class GeminiService {
             UUID id,
             String fullName,
             String email,
+            String phone,
             int matchScore,
             String reason
     ) {}

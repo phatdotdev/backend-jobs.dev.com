@@ -23,11 +23,14 @@ public class Resume {
     @GeneratedValue(strategy = GenerationType.UUID)
     UUID id;
 
+    @Lob
     String title;
 
+    @Lob
     String introduction;
 
-    @Column(name = "object_career")
+    @Lob
+    @Column(name = "object_career", columnDefinition = "TEXT")
     String objectCareer;
 
     @ManyToMany

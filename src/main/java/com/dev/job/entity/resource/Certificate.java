@@ -22,5 +22,6 @@ public class Certificate {
     @Column(nullable = false, unique = true)
     String name;
 
+    @Lob
     String description;
 }

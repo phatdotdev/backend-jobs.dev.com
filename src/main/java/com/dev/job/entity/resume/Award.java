@@ -24,7 +24,11 @@ public class Award {
     String name;
     String organization;
     LocalDate receivedDate;
+
+    @Lob
     String achievement;
+
+    @Lob
     String description;
 
     @OneToOne

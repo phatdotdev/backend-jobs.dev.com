@@ -4,9 +4,11 @@ import com.dev.job.dto.request.Communication.CreateNotificationRequest;
 import com.dev.job.dto.response.Communication.NotificationResponse;
 import com.dev.job.entity.communication.Notification;
 import com.dev.job.entity.communication.NotificationType;
+import com.dev.job.entity.posting.JobPosting;
 import com.dev.job.exceptions.BadRequestException;
 import com.dev.job.exceptions.ResourceNotFoundException;
 import com.dev.job.repository.Communication.NotificationRepository;
+import com.dev.job.repository.Posting.JobPostingRepository;
 import com.dev.job.repository.User.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -27,6 +29,7 @@ public class NotificationService {
     UserRepository userRepository;
     SimpMessagingTemplate messagingTemplate;
     NotificationRepository notificationRepository;
+    JobPostingRepository jobPostingRepository;
 
     public void sendUserNotification(Notification notification, UUID userId){
         notification.setRead(false);
@@ -85,6 +88,19 @@ public class NotificationService {
         sendUserNotificationsToUsers(ids, notification, userId);
     }
 
+    public void sendInvitationToUser(UUID senderId, UUID postId,  UUID receiverId){
+        JobPosting jobPosting = jobPostingRepository.findById(postId)
+                .orElseThrow(() -> new BadRequestException("Job Posting Not Found."));
+        Notification notification = Notification.builder()
+                .type(NotificationType.JOB_INVITATION)
+                .senderId(senderId)
+                .recipientId(receiverId)
+                .title("Có lời mời công việc!")
+                .content("Bạn có lời mời từ công việc "+jobPosting.getTitle())
+                .jobPosting(jobPosting)
+                .build();
+        sendUserNotification(notification, senderId);
+    }
 
     // PRIVATE METHOD
 
@@ -117,13 +133,4 @@ public class NotificationService {
         return null;
     }
 
-
-    public static String getMessageTemplate(NotificationType type) {
-        return switch (type) {
-            case APPLICATION_STATUS_CHANGED -> "Trạng thái đơn ứng tuyển đã thay đổi.";
-            case APPLICATION_ACTIVITY -> "Có hoạt động trên bài tuyển dụng của bạn.";
-            case REVIEW_RECEIVED -> "Kết quả đánh giá hồ sơ đã có.";
-            case SYSTEM_ANNOUNCEMENT -> "Thông báo từ hệ thống.";
-        };
-    }
 }
