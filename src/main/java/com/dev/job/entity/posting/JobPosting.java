@@ -38,6 +38,8 @@ public class JobPosting {
 
     JobType type;
     String experience;
+
+    @Lob
     String requiredDocuments;
 
     @Lob

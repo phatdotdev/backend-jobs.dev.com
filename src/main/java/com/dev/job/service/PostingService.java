@@ -317,7 +317,7 @@ public class PostingService {
 
         if (companyName != null && !companyName.isEmpty()) {
             spec = spec.and((root, query, cb) ->
-                    cb.like(cb.lower(root.get("company").get("name")), "%" + companyName.toLowerCase() + "%"));
+                    cb.like(cb.lower(root.get("recruiter").get("companyName")), "%" + companyName.toLowerCase() + "%"));
         }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());

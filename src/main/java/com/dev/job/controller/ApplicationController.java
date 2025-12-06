@@ -99,7 +99,13 @@ public class ApplicationController {
         return ok(applicationService.updateDocuments(id, files, userId));
     }
 
-    
+    @PutMapping("/{id}/cancel")
+    public ResponseEntity<ApiResponse<ApplicationResponse>> cancelApplication(@PathVariable UUID id,
+                                                                              Authentication authentication){
+        return ok(applicationService.cancelApplication(id, UUID.fromString(authentication.getName())));
+    }
+
+
 
     // GET JOBSEEKER BY APPLICANT ID
     @GetMapping("/{id}/job-seeker")

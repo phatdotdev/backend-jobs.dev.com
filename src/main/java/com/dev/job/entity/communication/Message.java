@@ -25,6 +25,7 @@ public class Message {
     @Column(name = "receiver_id")
     UUID receiverId;
 
+    @Lob
     String content;
 
     @JsonProperty("isRead")

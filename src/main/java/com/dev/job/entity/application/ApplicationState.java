@@ -7,5 +7,6 @@ public enum ApplicationState {
     REJECTED,
     ACCEPTED,
     INTERVIEW,
-    HIRED
+    HIRED,
+    CANCELLED
 }

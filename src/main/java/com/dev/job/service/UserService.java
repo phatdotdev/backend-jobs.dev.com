@@ -105,7 +105,7 @@ public class UserService {
         }
 
         Page<User> userPage = userRepository.findAll(spec, pageable);
-        return userPage.map(userMapper::toResponse);
+        return userPage.map(this::userToUserResponse);
     }
 
 
@@ -166,7 +166,7 @@ public class UserService {
         }
 
         Page<JobSeeker> jobSeekerPage = jobSeekerRepository.findAll(spec, pageable);
-        return jobSeekerPage.map(userMapper::jobSeekerToResponse);
+        return jobSeekerPage.map(this::jobSeekerToResponse);
 
     }
 
@@ -264,7 +264,7 @@ public class UserService {
         }
 
         Page<Expert> expertPage = expertRepository.findAll(spec, pageable);
-        return expertPage.map(userMapper::expertToResponse);
+        return expertPage.map(this::expertToResponse);
     }
 
     // Delete User By ID

@@ -29,6 +29,8 @@ public class Notification {
     UUID recipientId;
     NotificationType type;
     String title;
+
+    @Lob
     String content;
 
 

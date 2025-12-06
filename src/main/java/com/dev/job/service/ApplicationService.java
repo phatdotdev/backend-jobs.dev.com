@@ -212,6 +212,11 @@ public class ApplicationService {
         if(!application.getResume().getJobSeeker().getId().equals(userId)){
             throw  new UnauthorizedException("You do not have permission");
         }
+        if(application.getState() == ApplicationState.CANCELLED
+                || application.getState() == ApplicationState.HIRED
+                || application.getState() == ApplicationState.REJECTED){
+            throw new BadRequestException("Can not update application state.");
+        }
         List<Document> documents = uploadService.uploadDocuments(files, "documents/applications", id);
         application.getDocuments().addAll(documents);
         application.setState(ApplicationState.SUBMITTED);
@@ -229,6 +234,35 @@ public class ApplicationService {
                     .build(), userId
         );
 
+        return toApplicationResponse(application);
+    }
+
+    @Transactional
+    public ApplicationResponse cancelApplication(UUID id, UUID userId){
+        Application application = applicationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found."));
+        if(!application.getResume().getJobSeeker().getId().equals(userId)){
+            throw  new UnauthorizedException("You do not have permission");
+        }
+        if(application.getState() == ApplicationState.CANCELLED
+        || application.getState() == ApplicationState.HIRED
+        || application.getState() == ApplicationState.REJECTED){
+            throw new BadRequestException("Can not update application state.");
+        }
+        application.setState(ApplicationState.CANCELLED);
+        application.setUpdatedAt(LocalDateTime.now());
+        applicationRepository.save(application);
+        notificationService.sendUserNotification(
+                Notification.builder()
+                        .recipientId(application.getJobPosting().getRecruiter().getId())
+                        .title("Rút đơn ứng tuyển!")
+                        .jobPosting(application.getJobPosting())
+                        .type(NotificationType.APPLICATION_ACTIVITY)
+                        .content("Có ứng viên rút hồ sơ ứng tuyển.")
+                        .isRead(false)
+                        .timestamp(LocalDateTime.now())
+                        .build(), userId
+        );
         return toApplicationResponse(application);
     }
 
